@@ -1,59 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Swift POS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Point of Sale (POS) admin panel built with **Laravel 12** and **Filament v5**.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **PHP** ^8.3
+- **Laravel** ^12.0
+- **Filament** ^5.5
+- **Tailwind CSS** ^4.x + **Vite** ^7.x — Frontend tooling
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- SQLite (default) or any other supported database
 
-## Learning Laravel
+## Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 1. Clone the repository
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone <repo-url> swift-pos
+cd swift-pos
+```
 
-## Laravel Sponsors
+### 2. Install dependencies
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+npm install
+```
 
-### Premium Partners
+### 3. Environment configuration
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+Edit `.env` as needed. By default, the project uses SQLite:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+DB_CONNECTION=sqlite
+```
 
-## Code of Conduct
+### 4. Create the SQLite database file (if not exists)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+touch database/database.sqlite
+```
 
-## Security Vulnerabilities
+### 5. Run migrations & seeders
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate --seed
+```
+
+This will create a default user:
+
+- **Email:** `test@example.com`
+- **Password:** `password`
+
+> You can change the credentials in `database/seeders/DatabaseSeeder.php`.
+
+### 6. Create a storage symlink
+
+```bash
+php artisan storage:link
+```
+
+This is required for avatar uploads to work correctly.
+
+### 7. Build frontend assets
+
+```bash
+npm run build
+```
+
+### 8. Run the development server
+
+```bash
+composer run dev
+```
+
+This starts the Laravel dev server, queue worker, log watcher (Pail), and Vite concurrently.
+
+Or individually:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+## Accessing the Admin Panel
+
+Open your browser and navigate to:
+
+```
+http://localhost:8000/dashboard
+```
+
+Log in with the seeded credentials:
+
+- **Email:** `test@example.com`
+- **Password:** `password`
+
+## Filament Plugins
+
+| Plugin                                                                           | Description                                                                       |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [filament-edit-profile](https://github.com/joaopaulolndev/filament-edit-profile) | Edit profile page with avatar, email, browser sessions & Sanctum token management |
+| [filament-ui-switcher](https://github.com/andreia/filament-ui-switcher)          | Light / dark mode toggle inside the admin panel                                   |
+
+## Running Tests
+
+```bash
+php artisan test
+```
+
+or via composer:
+
+```bash
+composer run test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
