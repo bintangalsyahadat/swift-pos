@@ -22,6 +22,8 @@ use Filament\Navigation\MenuItem;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Illuminate\Support\Facades\Auth;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Andreia\FilamentUiSwitcher\FilamentUiSwitcherPlugin;
+use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -31,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('dashboard')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -72,7 +75,9 @@ class AdminPanelProvider extends PanelProvider
                     ->shouldShowDeleteAccountForm(false)
                     ->shouldShowSanctumTokens()
                     ->shouldShowBrowserSessionsForm()
-                    ->shouldShowAvatarForm()
+                    ->shouldShowAvatarForm(),
+                FilamentUiSwitcherPlugin::make()
+                    ->withModeSwitcher()
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
