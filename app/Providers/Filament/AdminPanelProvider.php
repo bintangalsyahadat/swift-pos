@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('dashboard')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
+            ->brandName('SwiftPos')
             ->colors([
                 'primary' => Color::Amber,
             ])
