@@ -4,13 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Order extends Model
 {
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'stock',
+        'customer_id',
+        'order_date',
+        'total_price',
     ];
 
     public function orderDetails()
