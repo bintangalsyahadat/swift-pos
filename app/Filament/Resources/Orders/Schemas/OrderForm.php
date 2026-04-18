@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Models\Customer;
 use App\Models\Product;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
@@ -80,12 +81,17 @@ class OrderForm
                                                 return $item['subtotal'] ?? 0;
                                             });
                                             $set('../../total_price', $total);
+
+                                            $discount = $get('../../discount') ?? 0;
+                                            $discount_amount = $total * ($discount / 100);
+                                            $set('../../discount_amount', $discount_amount);
+                                            $set('../../total_payment', $total - $discount_amount);
                                         }),
                                     TextInput::make('price')
                                         ->required()
                                         ->numeric()
                                         ->prefix('IDR')
-                                        ->disabled()
+                                        ->readOnly()
                                         ->formatStateUsing(fn($state, Get $get) => $state ?? Product::find($get('product_id'))->price ?? 0),
                                     TextInput::make('quantity')
                                         ->required()
@@ -102,14 +108,24 @@ class OrderForm
                                                 return $item['subtotal'] ?? 0;
                                             });
                                             $set('../../total_price', $total);
+
+                                            $discount = $get('../../discount') ?? 0;
+                                            $discount_amount = $total * ($discount / 100);
+                                            $set('../../discount_amount', $discount_amount);
+                                            $set('../../total_payment', $total - $discount_amount);
                                         }),
                                     TextInput::make('subtotal')
                                         ->required()
                                         ->numeric()
-                                        ->disabled()
-                                        ->dehydrated()
+                                        ->readOnly()
+                                        ->default(0)
                                         ->prefix('IDR'),
                                 ])->columns(4)
+                                ->hiddenLabel()
+                                ->addAction(fn (Action $action) => $action
+                                    ->label('Add Product')
+                                    ->icon('heroicon-o-plus')
+                                )
                         ])->columnSpanFull(),
 
                     ])->columnSpan(2),
@@ -117,13 +133,53 @@ class OrderForm
                     Section::make()
                     ->description('Payment Information')
                     ->schema([
+                        Select::make('status')
+                            ->required()
+                            ->options([
+                                'new' => 'New',
+                                'processing' => 'Processing',
+                                'completed' => 'Completed',
+                                'cancelled' => 'Cancelled',
+                            ])
+                            ->default('new')
+                            ->columnSpanFull(),
                         TextInput::make('total_price')
-                        ->required()
-                        ->numeric()
-                        ->disabled()
-                        ->dehydrated()
-                        ->prefix('IDR'),
-                    ])->columnSpan(1),
+                            ->required()
+                            ->numeric()
+                            ->readOnly()
+                            ->prefix('IDR')
+                            ->default(0)
+                            ->columnSpanFull(),
+                            TextInput::make('discount')
+                                ->required()
+                                ->numeric()
+                                ->default(0)
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                    $discount = floatval($state) ?? 0;
+                                    $total_price = $get('total_price') ?? 0;
+                                    $discount_amount = $total_price * ($discount / 100);
+                                    $set('discount_amount', $discount_amount);
+                                    $set('total_payment', $total_price - ($state ?? 0));
+                                })
+                                ->suffix('%')
+                                ->minValue(0)
+                                ->maxValue(100)
+                                ->columnSpan(2),
+                            TextInput::make('discount_amount')
+                                ->required()
+                                ->numeric()
+                                ->readOnly()
+                                ->prefix('IDR')
+                                ->columnSpan(2),
+                            TextInput::make('total_payment')
+                                ->required()
+                                ->numeric()
+                                ->readOnly()
+                                ->default(0)
+                                ->prefix('IDR')
+                                ->columnSpanFull(),
+                    ])->columnSpan(1)->columns(4),
             ])->columns(3);
     }
 }

@@ -15,6 +15,10 @@ class Order extends Model
         'customer_id',
         'order_date',
         'total_price',
+        'status',
+        'discount',
+        'discount_amount',
+        'total_payment',
     ];
 
     public function orderDetails()
