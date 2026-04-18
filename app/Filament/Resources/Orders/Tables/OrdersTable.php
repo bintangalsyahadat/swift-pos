@@ -17,7 +17,8 @@ class OrdersTable
             ->columns([
                 TextColumn::make('customer.name')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('order_date')
                     ->date()
                     ->sortable(),
