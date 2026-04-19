@@ -10,11 +10,12 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 use Andreia\FilamentUiSwitcher\Models\Traits\HasUiPreferences;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasUiPreferences;
+    use HasFactory, Notifiable, HasUiPreferences, HasRoles;
 
     /**
      * The attributes that are mass assignable.
