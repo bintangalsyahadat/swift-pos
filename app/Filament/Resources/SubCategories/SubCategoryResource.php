@@ -20,6 +20,7 @@ class SubCategoryResource extends Resource
     protected static ?string $model = SubCategory::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquare2Stack;
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Square2Stack;
 
     protected static string|UnitEnum|null $navigationGroup = 'Product Management';
     protected static ?int $navigationSort = 3;

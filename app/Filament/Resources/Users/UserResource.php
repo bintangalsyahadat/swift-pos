@@ -20,6 +20,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserCircle;
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::UserCircle;
     protected static string|UnitEnum|null $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 6;
 
