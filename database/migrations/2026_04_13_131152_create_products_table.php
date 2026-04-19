@@ -18,6 +18,14 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->integer('stock')->default(0);
             $table->string('image')->nullable();
+            $table->foreignId('brand_id')->nullable()->constrained()->onDelete('restrict');
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('restrict');
+            $table->foreignId('sub_category_id')->nullable()->constrained()->onDelete('restrict');
+            $table->boolean('is_active')->default(true);
+            $table->boolean('in_stock')->default(true);
+            $table->string('sku')->nullable()->unique();
+            $table->string('barcode')->nullable()->unique();
+            $table->string('base_price')->nullable();
             $table->timestamps();
         });
     }

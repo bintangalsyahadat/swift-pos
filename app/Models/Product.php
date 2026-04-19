@@ -12,10 +12,33 @@ class Product extends Model
         'price',
         'stock',
         'image',
+        'brand_id',
+        'category_id',
+        'sub_category_id',
+        'is_active',
+        'in_stock',
+        'sku',
+        'barcode',
+        'base_price',
     ];
 
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
     }
 }
