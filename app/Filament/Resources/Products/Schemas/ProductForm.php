@@ -106,7 +106,12 @@ class ProductForm
                             ->reactive()
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 static::generateSku($get, $set);
-                            }),
+                            })
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required(),
+                                FileUpload::make('logo'),
+                            ]),
                         Select::make('category_id')
                             ->relationship('category', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
                             ->label('Category ID')
@@ -115,7 +120,12 @@ class ProductForm
                                 $set('sub_category_id', null);
                                 static::generateSku($get, $set);
                             })
-                            ->default(null),
+                            ->default(null)
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required(),
+                                FileUpload::make('logo'),
+                            ]),
                         Select::make('sub_category_id')
                             ->label('Sub Category ID')
                             ->options(fn(Get $get) => SubCategory::query()
@@ -127,7 +137,16 @@ class ProductForm
                             ->reactive()
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 static::generateSku($get, $set);
-                            }),
+                            })
+                            ->createOptionForm([
+                                Select::make('category_id')
+                                    ->relationship('category', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
+                                    ->label('Category')
+                                    ->default(null),
+                                TextInput::make('name')
+                                    ->required(),
+                                FileUpload::make('logo'),
+                            ]),
                     ])->columnSpan(1)
             ])->columns(3);
     }
