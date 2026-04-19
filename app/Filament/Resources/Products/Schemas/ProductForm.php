@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\SubCategory;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -12,10 +15,45 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class ProductForm
 {
+    public static function generateSku(Get $get, Set $set): void
+    {
+        $brand = Brand::find($get('brand_id'));
+        $category = Category::find($get('category_id'));
+        $subCategory = SubCategory::find($get('sub_category_id'));
+
+        if ($brand && $category && $subCategory) {
+            // Generate SKU based on brand, category, and sub-category
+            $catCode = strtoupper(substr($category->name, 0, 3));
+            $subCatCode = strtoupper(substr($subCategory->name, 0, 3));
+            $brandCode = strtoupper(substr($brand->name, 0, 3));
+
+            $lastSku = Product::where('category_id', $category->id)
+                ->where('sub_category_id', $subCategory->id)
+                ->where('brand_id', $brand->id)
+                ->orderBy('id', 'desc')
+                ->value('sku');
+
+            $nextNumber = 1;
+
+            if ($lastSku) {
+                $parts = explode('-', $lastSku);
+                $lastNumber = intval(end($parts));
+                $nextNumber = $lastNumber + 1;
+            }
+
+            $sku = sprintf('%s-%s-%s-%04d', $brandCode, $catCode, $subCatCode, $nextNumber);
+            $set('sku', $sku);
+        } else {
+            // If any of the associations are missing, clear the SKU
+            $set('sku', null);
+        }
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -40,11 +78,9 @@ class ProductForm
                                 ->numeric()
                                 ->default(0),
                             TextInput::make('sku')
-                                ->required()
                                 ->unique()
                                 ->default(null),
                             TextInput::make('barcode')
-                                ->required()
                                 ->unique()
                                 ->default(null),
                             Toggle::make('is_active')
@@ -66,12 +102,19 @@ class ProductForm
                         Select::make('brand_id')
                             ->relationship('brand', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
                             ->label('Brand ID')
-                            ->default(null),
+                            ->default(null)
+                            ->reactive()
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                static::generateSku($get, $set);
+                            }),
                         Select::make('category_id')
                             ->relationship('category', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
                             ->label('Category ID')
                             ->live()
-                            ->afterStateUpdated(fn(callable $set) => $set('sub_category_id', null))
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set('sub_category_id', null);
+                                static::generateSku($get, $set);
+                            })
                             ->default(null),
                         Select::make('sub_category_id')
                             ->label('Sub Category ID')
@@ -80,7 +123,11 @@ class ProductForm
                                 ->when($get('category_id'), fn($q, $categoryId) => $q->where('category_id', $categoryId))
                                 ->orderBy('name')
                                 ->pluck('name', 'id'))
-                            ->default(null),
+                            ->default(null)
+                            ->reactive()
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                static::generateSku($get, $set);
+                            }),
                     ])->columnSpan(1)
             ])->columns(3);
     }
