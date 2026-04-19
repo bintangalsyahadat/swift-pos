@@ -179,6 +179,25 @@ class OrderForm
                                 ->default(0)
                                 ->prefix('IDR')
                                 ->columnSpanFull(),
+                            Select::make('payment_method')
+                                ->required()
+                                ->options([
+                                    'cash' => 'Cash',
+                                    'credit' => 'Credit Card',
+                                    'debit' => 'Debit Card',
+                                    'qris' => 'QRIS',
+                                ])
+                                ->default('cash')
+                                ->columnSpan(2),
+                            Select::make('payment_status')
+                                ->required()
+                                ->options([
+                                    'unpaid' => 'Unpaid',
+                                    'paid' => 'Paid',
+                                    'failed' => 'Failed',
+                                ])
+                                ->default('unpaid')
+                                ->columnSpan(2),
                     ])->columnSpan(1)->columns(4),
             ])->columns(3);
     }

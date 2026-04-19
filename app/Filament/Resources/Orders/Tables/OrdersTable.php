@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Orders\Tables;
 
+use App\Filament\Exports\OrderExporter;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -26,11 +28,27 @@ class OrdersTable
                     ->money('IDR')
                     ->sortable(),
                 TextColumn::make('discount')
-                    ->suffix('%'),
+                    ->suffix('%')
+                    ->toggleable(),
                 TextColumn::make('discount_amount')
-                    ->money('IDR'),
+                    ->money('IDR')
+                    ->toggleable()
+                    ->toggledHiddenByDefault(),
                 TextColumn::make('total_payment')
                     ->money('IDR'),
+                TextColumn::make('payment_method')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('payment_status')
+                    ->badge()
+                    ->sortable()
+                    ->toggleable()
+                    ->color(fn ($state) => match ($state) {
+                        'unpaid' => 'info',
+                        'paid' => 'success',
+                        'failed' => 'danger',
+                        default => 'secondary',
+                    }),
                 TextColumn::make('status')
                     ->badge()
                     ->sortable()
@@ -40,7 +58,7 @@ class OrdersTable
                         'completed' => 'success',
                         'cancelled' => 'danger',
                         default => 'secondary',
-                    }),
+                }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -58,6 +76,9 @@ class OrdersTable
                     ViewAction::make(),
                     EditAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(OrderExporter::class)
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

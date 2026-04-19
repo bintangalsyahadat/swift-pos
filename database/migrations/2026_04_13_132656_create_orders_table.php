@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('discount')->default(0);
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->decimal('total_payment', 10, 2)->default(0);
+            $table->enum('payment_status', ['unpaid', 'paid', 'failed'])->default('unpaid');
+            $table->enum('payment_method', ['cash', 'credit', 'debit', 'qris'])->default('cash');
             $table->timestamps();
         });
     }

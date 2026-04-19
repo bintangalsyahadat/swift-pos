@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8cffc4ab33a96028560b9d409b6d1478",
+    "content-hash": "30fab5cff0d8d07ecb0c5fdf4a9fe1cf",
     "packages": [
         {
             "name": "andreia/filament-ui-switcher",

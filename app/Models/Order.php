@@ -19,6 +19,8 @@ class Order extends Model
         'discount',
         'discount_amount',
         'total_payment',
+        'payment_method',
+        'payment_status',
     ];
 
     public function orderDetails()
