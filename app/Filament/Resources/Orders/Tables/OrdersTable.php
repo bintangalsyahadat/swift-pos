@@ -18,6 +18,11 @@ class OrdersTable
     {
         return $table
             ->columns([
+                TextColumn::make('order_number')
+                    ->label('Order No.')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable(),
                 TextColumn::make('customer.name')
                     ->sortable()
                     ->searchable(),
@@ -43,7 +48,7 @@ class OrdersTable
                     ->badge()
                     ->sortable()
                     ->toggleable()
-                    ->color(fn ($state) => match ($state) {
+                    ->color(fn($state) => match ($state) {
                         'unpaid' => 'info',
                         'paid' => 'success',
                         'failed' => 'danger',
@@ -52,13 +57,13 @@ class OrdersTable
                 TextColumn::make('status')
                     ->badge()
                     ->sortable()
-                    ->color(fn ($state) => match ($state) {
+                    ->color(fn($state) => match ($state) {
                         'new' => 'info',
                         'processing' => 'warning',
                         'completed' => 'success',
                         'cancelled' => 'danger',
                         default => 'secondary',
-                }),
+                    }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

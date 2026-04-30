@@ -10,6 +10,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -54,7 +55,8 @@ class OrderForm
                                         TextInput::make('email')
                                             ->email(),
                                         TextInput::make('address'),
-                                    ]),
+                                    ])
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                                 TextInput::make('phone')
                                     ->disabled()
                                     ->hidden(fn(Get $get) => !$get('customer_id'))
@@ -139,37 +141,38 @@ class OrderForm
                                             ->readOnly()
                                             ->default(0)
                                             ->prefix('IDR'),
-                                    ])->columns(4)
+                                    ])->columns(3)
                                     ->hiddenLabel()
                                     ->addAction(
                                         fn(Action $action) => $action
                                             ->label('Add Product')
                                             ->icon('heroicon-o-plus')
                                     )
-                            ])->columnSpanFull(),
+                            ])->columnSpanFull()->hidden(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
 
                     ])->columnSpan(2),
 
                 Section::make()
                     ->description('Payment Information')
                     ->schema([
-                        Select::make('status')
-                            ->required()
-                            ->options([
-                                'new' => 'New',
-                                'processing' => 'Processing',
-                                'completed' => 'Completed',
-                                'cancelled' => 'Cancelled',
-                            ])
-                            ->default('new')
-                            ->columnSpanFull(),
+                        TextEntry::make('status')
+                            ->formatStateUsing(fn(string $state): string => ucfirst($state))
+                            ->badge()
+                            ->color(fn($state) => match ($state) {
+                                'new' => 'info',
+                                'processing' => 'warning',
+                                'completed' => 'success',
+                                'cancelled' => 'danger',
+                                default => 'secondary',
+                            }),
                         TextInput::make('total_price')
                             ->required()
                             ->numeric()
                             ->readOnly()
                             ->prefix('IDR')
                             ->default(0)
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('discount')
                             ->required()
                             ->numeric()
@@ -185,20 +188,23 @@ class OrderForm
                             ->suffix('%')
                             ->minValue(0)
                             ->maxValue(100)
-                            ->columnSpan(2),
+                            ->columnSpan(2)
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('discount_amount')
                             ->required()
                             ->numeric()
                             ->readOnly()
                             ->prefix('IDR')
-                            ->columnSpan(2),
+                            ->columnSpan(2)
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('total_payment')
                             ->required()
                             ->numeric()
                             ->readOnly()
                             ->default(0)
                             ->prefix('IDR')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         Select::make('payment_method')
                             ->required()
                             ->options([
@@ -208,15 +214,18 @@ class OrderForm
                                 'qris' => 'QRIS',
                             ])
                             ->default('cash')
-                            ->columnSpan(2),
-                        Select::make('payment_status')
-                            ->required()
-                            ->options([
-                                'unpaid' => 'Unpaid',
-                                'paid' => 'Paid',
-                                'failed' => 'Failed',
-                            ])
-                            ->default('unpaid')
+                            ->columnSpan(2)
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                        TextEntry::make('payment_status')
+                            ->formatStateUsing(fn(string $state): string => ucfirst($state))
+                            ->badge()
+                            ->color(fn($state) => match ($state) {
+                                'unpaid' => 'info',
+                                'paid' => 'success',
+                                'failed' => 'danger',
+                                default => 'secondary',
+                            })
+                            ->label('Payment Status')
                             ->columnSpan(2),
                     ])->columnSpan(1)->columns(4),
             ])->columns(3);
