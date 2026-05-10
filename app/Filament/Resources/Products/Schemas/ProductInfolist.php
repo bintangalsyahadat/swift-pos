@@ -17,7 +17,9 @@ class ProductInfolist
                     ->columnSpanFull(),
                 TextEntry::make('price')
                     ->money('IDR'),
-                TextEntry::make('stock')
+                TextEntry::make('current_stock')
+                    ->label('Stok')
+                    ->state(fn($record) => $record->currentStock())
                     ->numeric(),
                 TextEntry::make('created_at')
                     ->dateTime()

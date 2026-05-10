@@ -10,7 +10,6 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'stock',
         'image',
         'brand_id',
         'category_id',
@@ -25,6 +24,23 @@ class Product extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+
+    public function stockMoves()
+    {
+        return $this->hasMany(StockMove::class);
+    }
+
+    /**
+     * Hitung stok aktual dari akumulasi stock move yang sudah done.
+     * Tidak bergantung pada kolom stock — murni dari stock move.
+     */
+    public function currentStock(): int
+    {
+        $in  = $this->stockMoves()->where('state', 'done')->where('type', 'in')->sum('quantity');
+        $out = $this->stockMoves()->where('state', 'done')->where('type', 'out')->sum('quantity');
+
+        return (int) ($in - $out);
     }
 
     public function brand()

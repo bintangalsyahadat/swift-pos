@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Order extends Model
 {
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -27,6 +29,35 @@ class Order extends Model
     protected static function boot(): void
     {
         parent::boot();
+
+        static::updating(function (Order $order) {
+            if (! $order->isDirty('status')) {
+                return;
+            }
+
+            $newStatus = $order->status;
+            $userId = Auth::id();
+
+            if ($newStatus === 'processing') {
+                $order->orderDetails()->with('product')->get()->each(function ($detail) use ($order, $userId) {
+                    StockMove::create([
+                        'product_id'      => $detail->product_id,
+                        'user_id'         => $userId,
+                        'quantity'        => $detail->quantity,
+                        'type'            => 'out',
+                        'order_detail_id' => $detail->id,
+                        'reference'       => $order->order_number,
+                        'state'           => 'draft',
+                    ]);
+                });
+            } elseif ($newStatus === 'completed') {
+                StockMove::whereHas('orderDetail', fn($q) => $q->where('order_id', $order->id))
+                    ->update(['state' => 'done']);
+            } elseif ($newStatus === 'cancelled') {
+                StockMove::whereHas('orderDetail', fn($q) => $q->where('order_id', $order->id))
+                    ->update(['state' => 'cancelled']);
+            }
+        });
 
         static::creating(function (Order $order) {
             $year = now()->format('Y');

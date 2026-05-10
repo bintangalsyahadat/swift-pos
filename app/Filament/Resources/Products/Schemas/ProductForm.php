@@ -73,10 +73,6 @@ class ProductForm
                                 ->required()
                                 ->numeric()
                                 ->prefix('IDR'),
-                            TextInput::make('stock')
-                                ->required()
-                                ->numeric()
-                                ->default(0),
                             TextInput::make('sku')
                                 ->unique()
                                 ->default(null),

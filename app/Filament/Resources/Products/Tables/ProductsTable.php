@@ -24,9 +24,12 @@ class ProductsTable
                 TextColumn::make('price')
                     ->money('IDR')
                     ->sortable(),
-                TextColumn::make('stock')
+                TextColumn::make('current_stock')
+                    ->label('Stok')
+                    ->getStateUsing(fn($record) => $record->currentStock())
                     ->numeric()
-                    ->sortable(),
+                    ->badge()
+                    ->color(fn($state) => $state > 0 ? 'success' : 'danger'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

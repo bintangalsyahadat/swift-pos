@@ -119,6 +119,17 @@ class OrderForm
                                             ->numeric()
                                             ->default(1)
                                             ->minValue(1)
+                                            ->hint(function (Get $get) {
+                                                $product = Product::find($get('product_id'));
+                                                if (! $product) return null;
+                                                $stock = $product->currentStock();
+                                                return 'Stok tersedia: ' . $stock . ($stock <= 0 ? ' (Habis)' : '');
+                                            })
+                                            ->hintColor(function (Get $get) {
+                                                $product = Product::find($get('product_id'));
+                                                if (! $product) return null;
+                                                return $product->currentStock() > 0 ? 'success' : 'danger';
+                                            })
                                             ->reactive()
                                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                                 $price = $get('price') ?? 0;
