@@ -107,40 +107,47 @@ class PosTerminal extends Page
         return $this->sessionId ? PosSession::find($this->sessionId) : null;
     }
 
-    public function getProductsProperty()
+    #[Computed]
+    public function products()
     {
+        $search = $this->search;
         return Product::query()
             ->where('is_active', true)
-            ->when($this->search, fn($q) => $q->where(function ($query) {
-                $query->where('name',    'like', '%' . $this->search . '%')
-                    ->orWhere('sku',     'like', '%' . $this->search . '%')
-                    ->orWhere('barcode', 'like', '%' . $this->search . '%');
+            ->when($search, fn($q) => $q->where(function ($query) use ($search) {
+                $query->where('name',    'like', '%' . $search . '%')
+                    ->orWhere('sku',     'like', '%' . $search . '%')
+                    ->orWhere('barcode', 'like', '%' . $search . '%');
             }))
             ->limit(50)
             ->get();
     }
 
-    public function getCustomersProperty()
+    #[Computed]
+    public function customers()
     {
         return Customer::orderBy('name')->get();
     }
 
-    public function getFilteredCustomersProperty()
+    #[Computed]
+    public function filteredCustomers()
     {
+        $search = $this->customerSearch;
         return Customer::query()
-            ->when($this->customerSearch, fn($q) => $q->where(function ($query) {
-                $query->where('name',  'like', '%' . $this->customerSearch . '%')
-                    ->orWhere('phone', 'like', '%' . $this->customerSearch . '%')
-                    ->orWhere('email', 'like', '%' . $this->customerSearch . '%');
+            ->when($search, fn($q) => $q->where(function ($query) use ($search) {
+                $query->where('name',  'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
             }))
             ->orderBy('name')
             ->limit(50)
             ->get();
     }
 
-    public function getSelectedCustomerProperty(): ?Customer
+    #[Computed]
+    public function selectedCustomer(): ?Customer
     {
-        return $this->customerId ? Customer::find($this->customerId) : null;
+        $id = $this->customerId;
+        return $id ? Customer::find($id) : null;
     }
 
     public function openCustomerModal(): void
@@ -167,42 +174,63 @@ class PosTerminal extends Page
         $this->customerId = null;
     }
 
-    public function getPaymentMethodsProperty()
+    #[Computed]
+    public function paymentMethods()
     {
         return PaymentMethod::active()->get();
     }
 
-    public function getHasCustomerProperty(): bool
+    #[Computed]
+    public function hasCustomer(): bool
     {
-        return (bool) ($this->customerId
+        $customerId = $this->customerId;
+        return (bool) ($customerId
             ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null));
     }
 
-    public function getTotalPriceProperty(): float
+    #[Computed]
+    public function totalPrice(): float
     {
         return collect($this->cart)->sum('subtotal');
     }
 
-    public function getDiscountAmountProperty(): float
+    #[Computed]
+    public function discountAmount(): float
     {
-        return round($this->totalPrice * ($this->discount / 100), 2);
+        $cart     = $this->cart;
+        $discount = $this->discount;
+        $total    = collect($cart)->sum('subtotal');
+        return round($total * ($discount / 100), 2);
     }
 
-    public function getTotalPaymentProperty(): float
+    #[Computed]
+    public function totalPayment(): float
     {
-        return $this->totalPrice - $this->discountAmount;
+        $cart     = $this->cart;
+        $discount = $this->discount;
+        $total    = collect($cart)->sum('subtotal');
+        $discAmt  = round($total * ($discount / 100), 2);
+        return $total - $discAmt;
     }
 
-    public function getIsCashPaymentProperty(): bool
+    #[Computed]
+    public function isCashPayment(): bool
     {
-        $pm = PaymentMethod::find($this->paymentMethodId);
+        $id = $this->paymentMethodId;
+        $pm = $id ? PaymentMethod::find($id) : null;
         return $pm && $pm->type === 'cash';
     }
 
-    public function getChangeAmountProperty(): int
+    #[Computed]
+    public function changeAmount(): int
     {
-        if (! $this->isCashPayment) return 0;
-        $change = $this->cashPaid - (int) ceil($this->totalPayment);
+        $cart       = $this->cart;
+        $discount   = $this->discount;
+        $cashPaid   = $this->cashPaid;
+        $total      = collect($cart)->sum('subtotal');
+        $discAmt    = round($total * ($discount / 100), 2);
+        $totalPay   = (int) ceil($total - $discAmt);
+        $change     = $cashPaid - $totalPay;
         return max(0, $change);
     }
 
@@ -537,13 +565,15 @@ class PosTerminal extends Page
     }
 
     // ─── Computed: receipt order ───────────────────────────────────────────────
-    public function getReceiptOrderProperty(): ?Order
+    #[Computed]
+    public function receiptOrder(): ?Order
     {
-        if (! $this->receiptOrderId) {
+        $id = $this->receiptOrderId;
+        if (! $id) {
             return null;
         }
 
         return Order::with(['orderDetails.product', 'customer', 'paymentMethod'])
-            ->find($this->receiptOrderId);
+            ->find($id);
     }
 }
