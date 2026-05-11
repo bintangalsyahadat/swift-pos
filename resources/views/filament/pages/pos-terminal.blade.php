@@ -533,6 +533,139 @@
     </div>
     @endif
 
+    {{-- ── Receipt Modal ──────────────────────────────────────────────── --}}
+    @if($showReceiptModal && $this->receiptOrder)
+    @php
+    $order = $this->receiptOrder;
+    $storeName = \App\Models\Setting::get('general.store_name', 'SwiftPOS');
+    $storeAddr = \App\Models\Setting::get('general.store_address', '');
+    $storePhone = \App\Models\Setting::get('general.store_phone', '');
+    $footerMsg = \App\Models\Setting::get('general.receipt_footer','Thank you for your purchase!');
+    $currency = \App\Models\Setting::get('general.currency', 'IDR');
+    $fmt = fn($n) => number_format($n, 0, ',', '.');
+    @endphp
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 print:hidden" id="receipt-modal-overlay">
+        <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+                <h3 class="font-semibold text-gray-800 dark:text-white text-sm">Receipt</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="posReceiptPrint()"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
+                        </svg>
+                        Print
+                    </button>
+                    <button wire:click="closeReceiptModal"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {{-- Receipt content (scrollable) --}}
+            <div class="overflow-y-auto flex-1 p-4">
+                <style>
+                    #receipt-content .border-dashed {
+                        border-top: 1px dashed #ccc;
+                        margin: 6px 0;
+                    }
+                </style>
+                <div id="receipt-content">
+                    {{-- Store header --}}
+                    <div style="text-align:center;margin-bottom:8px;">
+                        <p style="font-weight:bold;font-size:14px;">{{ $storeName }}</p>
+                        @if($storeAddr)
+                        <p style="font-size:11px;color:#555;margin-top:2px;">{{ $storeAddr }}</p>
+                        @endif
+                        @if($storePhone)
+                        <p style="font-size:11px;color:#555;">{{ $storePhone }}</p>
+                        @endif
+                    </div>
+
+                    <div class="border-dashed"></div>
+
+                    {{-- Order meta --}}
+                    <div style="font-size:11px;margin-bottom:6px;">
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;">
+                            <span style="color:#888;">Order</span>
+                            <span style="font-weight:600;">{{ $order->order_number }}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;">
+                            <span style="color:#888;">Date</span>
+                            <span>{{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, H:i') }}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;">
+                            <span style="color:#888;">Cashier</span>
+                            <span>{{ $cashier->name ?? '-' }}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;">
+                            <span style="color:#888;">Customer</span>
+                            <span>{{ $order->customer?->name ?? '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="border-dashed"></div>
+
+                    {{-- Items --}}
+                    <table style="width:100%;font-size:11px;border-collapse:collapse;margin-bottom:4px;">
+                        <thead>
+                            <tr style="color:#888;border-bottom:1px solid #ddd;">
+                                <th style="text-align:left;padding-bottom:3px;font-weight:normal;">Item</th>
+                                <th style="text-align:center;padding-bottom:3px;font-weight:normal;width:30px;">Qty</th>
+                                <th style="text-align:right;padding-bottom:3px;font-weight:normal;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($order->orderDetails as $detail)
+                            <tr style="border-bottom:1px solid #f0f0f0;">
+                                <td style="padding:3px 4px 3px 0;line-height:1.4;">
+                                    {{ $detail->product->name ?? '—' }}<br>
+                                    <span style="color:#888;">{{ $currency }} {{ $fmt($detail->subtotal / max($detail->quantity, 1)) }}</span>
+                                </td>
+                                <td style="padding:3px 2px;text-align:center;">{{ $detail->quantity }}</td>
+                                <td style="padding:3px 0;text-align:right;white-space:nowrap;">{{ $currency }} {{ $fmt($detail->subtotal) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="border-dashed"></div>
+
+                    {{-- Totals --}}
+                    <div style="font-size:11px;">
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;">
+                            <span>Subtotal</span>
+                            <span>{{ $currency }} {{ $fmt($order->total_price) }}</span>
+                        </div>
+                        @if($order->discount_amount > 0)
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;color:#c00;">
+                            <span>Discount ({{ $order->discount }}%)</span>
+                            <span>− {{ $currency }} {{ $fmt($order->discount_amount) }}</span>
+                        </div>
+                        @endif
+                        <div style="display:flex;justify-content:space-between;margin:4px 0 2px;font-weight:bold;font-size:13px;border-top:1px solid #ddd;padding-top:4px;">
+                            <span>Total</span>
+                            <span>{{ $currency }} {{ $fmt($order->total_payment) }}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;color:#666;">
+                            <span>Payment</span>
+                            <span>{{ $order->paymentMethod?->name ?? ucfirst($order->payment_method) }}</span>
+                        </div>
+                    </div>
+
+                    @if($footerMsg)
+                    <div class="border-dashed"></div>
+                    <p style="text-align:center;font-size:11px;color:#888;font-style:italic;">{{ $footerMsg }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 
 @script
@@ -594,6 +727,46 @@
             e.returnValue = 'Shift masih aktif atau cart belum dikosongkan. Yakin ingin keluar?';
             return e.returnValue;
         }
+    });
+
+    // ── Print receipt ─────────────────────────────────────────────────────────
+    function posReceiptPrint() {
+        var content = document.getElementById('receipt-content');
+        if (!content) return;
+
+        var win = window.open('', '_blank', 'width=400,height=600');
+        win.document.write(
+            '<!DOCTYPE html><html><head>' +
+            '<meta charset="utf-8">' +
+            '<title>Receipt</title>' +
+            '<style>' +
+            '  * { box-sizing: border-box; margin: 0; padding: 0; }' +
+            '  body { font-family: "Courier New", Courier, monospace; font-size: 12px; color: #000; background: #fff; width: 80mm; padding: 4mm; }' +
+            '  .text-center { text-align: center; }' +
+            '  .text-right { text-align: right; }' +
+            '  .font-bold { font-weight: bold; }' +
+            '  .text-base { font-size: 14px; }' +
+            '  .text-sm { font-size: 12px; }' +
+            '  .text-xs { font-size: 11px; }' +
+            '  .border-dashed { border-top: 1px dashed #666; margin: 6px 0; }' +
+            '  table { width: 100%; border-collapse: collapse; }' +
+            '  td, th { vertical-align: top; padding: 2px 2px; }' +
+            '  .muted { color: #555; }' +
+            '  .row { display: flex; justify-content: space-between; margin: 2px 0; }' +
+            '  @media print { @page { size: 80mm auto; margin: 0; } body { width: 80mm; } }' +
+            '</style>' +
+            '</head><body>' +
+            content.innerHTML +
+            '<script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};}<\/script>' +
+            '</body></html>'
+        );
+        win.document.close();
+    }
+
+    $wire.on('open-receipt', function() {
+        setTimeout(function() {
+            posReceiptPrint();
+        }, 350);
     });
 </script>
 @endscript

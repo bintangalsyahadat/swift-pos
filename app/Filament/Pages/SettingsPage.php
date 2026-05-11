@@ -26,6 +26,8 @@ class SettingsPage extends Page
 
     // General
     public string $general_store_name        = 'SwiftPOS';
+    public string $general_store_address     = '';
+    public string $general_store_phone       = '';
     public string $general_currency          = 'IDR';
     public string $general_timezone          = 'Asia/Jakarta';
     public string $general_receipt_footer    = '';
@@ -43,6 +45,8 @@ class SettingsPage extends Page
     public function mount(): void
     {
         $this->general_store_name          = Setting::get('general.store_name',     'SwiftPOS');
+        $this->general_store_address       = Setting::get('general.store_address',  '');
+        $this->general_store_phone         = Setting::get('general.store_phone',    '');
         $this->general_currency            = Setting::get('general.currency',        'IDR');
         $this->general_timezone            = Setting::get('general.timezone',        'Asia/Jakarta');
         $this->general_receipt_footer      = Setting::get('general.receipt_footer',  '');
@@ -61,6 +65,8 @@ class SettingsPage extends Page
     {
         $rules = [
             'general_store_name'          => 'required|string|max:100',
+            'general_store_address'       => 'nullable|string|max:255',
+            'general_store_phone'         => 'nullable|string|max:30',
             'general_currency'            => 'required|string|max:10',
             'general_timezone'            => 'required|string',
             'general_receipt_footer'      => 'nullable|string|max:500',
@@ -86,6 +92,8 @@ class SettingsPage extends Page
 
         Setting::setMany([
             'general.store_name'          => $this->general_store_name,
+            'general.store_address'       => $this->general_store_address,
+            'general.store_phone'         => $this->general_store_phone,
             'general.currency'            => $this->general_currency,
             'general.timezone'            => $this->general_timezone,
             'general.receipt_footer'      => $this->general_receipt_footer,

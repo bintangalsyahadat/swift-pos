@@ -12,6 +12,8 @@ class SettingSeeder extends Seeder
         $defaults = [
             // General
             ['group' => 'general', 'key' => 'general.store_name',           'value' => 'SwiftPOS'],
+            ['group' => 'general', 'key' => 'general.store_address',        'value' => ''],
+            ['group' => 'general', 'key' => 'general.store_phone',          'value' => ''],
             ['group' => 'general', 'key' => 'general.currency',             'value' => 'IDR'],
             ['group' => 'general', 'key' => 'general.timezone',             'value' => 'Asia/Jakarta'],
             ['group' => 'general', 'key' => 'general.receipt_footer',       'value' => 'Thank you for shopping with us!'],

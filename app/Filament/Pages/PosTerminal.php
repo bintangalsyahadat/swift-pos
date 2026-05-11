@@ -58,6 +58,10 @@ class PosTerminal extends Page
     // ─── Checkout modal ───────────────────────────────────────────────────────
     public bool $showCheckoutModal = false;
 
+    // ─── Receipt modal ────────────────────────────────────────────────────────
+    public bool $showReceiptModal = false;
+    public ?int $receiptOrderId   = null;
+
     // ─── Customer picker modal ────────────────────────────────────────────────
     public bool   $showCustomerModal  = false;
     public string $customerSearch     = '';
@@ -427,7 +431,9 @@ class PosTerminal extends Page
             return;
         }
 
-        DB::transaction(function () use ($customerId) {
+        $createdOrderId = null;
+
+        DB::transaction(function () use ($customerId, &$createdOrderId) {
             $userId = Auth::id();
 
             $order = Order::create([
@@ -463,9 +469,13 @@ class PosTerminal extends Page
                     'state'           => 'done',
                 ]);
             }
+
+            $createdOrderId = $order->id;
         });
 
         $this->showCheckoutModal = false;
+        $this->receiptOrderId    = $createdOrderId;
+        $this->showReceiptModal  = true;
         $this->clearCart();
 
         Notification::make()
@@ -473,5 +483,24 @@ class PosTerminal extends Page
             ->body('Order has been recorded.')
             ->success()
             ->send();
+
+        $this->dispatch('open-receipt');
+    }
+
+    public function closeReceiptModal(): void
+    {
+        $this->showReceiptModal = false;
+        $this->receiptOrderId   = null;
+    }
+
+    // ─── Computed: receipt order ───────────────────────────────────────────────
+    public function getReceiptOrderProperty(): ?Order
+    {
+        if (! $this->receiptOrderId) {
+            return null;
+        }
+
+        return Order::with(['orderDetails.product', 'customer', 'paymentMethod'])
+            ->find($this->receiptOrderId);
     }
 }

@@ -25,6 +25,26 @@
                         @error('general_store_name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="sm:col-span-2">
+                        <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                            Store Address
+                        </label>
+                        <input type="text" wire:model="general_store_address"
+                            placeholder="e.g. Jl. Sudirman No. 1, Jakarta"
+                            class="fi-input block w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                        @error('general_store_address') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                            Store Phone
+                        </label>
+                        <input type="text" wire:model="general_store_phone"
+                            placeholder="e.g. +62 812 3456 7890"
+                            class="fi-input block w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                        @error('general_store_phone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+
                     <div>
                         <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Currency <span class="text-red-500">*</span>

@@ -44,6 +44,10 @@ class Order extends Model
         'payment_status',
     ];
 
+    protected $casts = [
+        'order_date' => 'datetime',
+    ];
+
     protected static function boot(): void
     {
         parent::boot();
