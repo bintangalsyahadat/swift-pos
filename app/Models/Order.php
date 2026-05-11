@@ -23,10 +23,16 @@ class Order extends Model
         return $this->belongsTo(PosSession::class);
     }
 
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
+
     protected $fillable = [
         'customer_id',
         'cashier_id',
         'pos_session_id',
+        'payment_method_id',
         'order_number',
         'order_date',
         'total_price',

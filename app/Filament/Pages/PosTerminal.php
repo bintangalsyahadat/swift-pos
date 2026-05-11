@@ -6,6 +6,7 @@ use App\Models\Cashier;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\PaymentMethod;
 use App\Models\PosSession;
 use App\Models\Product;
 use App\Models\StockMove;
@@ -49,10 +50,10 @@ class PosTerminal extends Page
     public array $cart = [];
 
     // ─── Transaction form ─────────────────────────────────────────────────────
-    public ?int   $customerId    = null;
-    public int    $discount      = 0;
-    public string $paymentMethod = 'cash';
-    public string $search        = '';
+    public ?int   $customerId       = null;
+    public int    $discount         = 0;
+    public ?int   $paymentMethodId  = null; // FK to payment_methods
+    public string $search           = '';
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,9 @@ class PosTerminal extends Page
             $this->session = $open;
             $this->phase   = 'operational';
         }
+
+        // Default payment method = first active one (usually Cash)
+        $this->paymentMethodId = PaymentMethod::active()->value('id');
     }
 
     public function getTitle(): string
@@ -99,6 +103,11 @@ class PosTerminal extends Page
     public function getCustomersProperty()
     {
         return Customer::orderBy('name')->get();
+    }
+
+    public function getPaymentMethodsProperty()
+    {
+        return PaymentMethod::active()->get();
     }
 
     public function getTotalPriceProperty(): float
@@ -258,7 +267,7 @@ class PosTerminal extends Page
         $this->cart          = [];
         $this->customerId    = null;
         $this->discount      = 0;
-        $this->paymentMethod = 'cash';
+        $this->paymentMethodId = null;
     }
 
     private function recalculateSubtotal(int $productId): void
@@ -305,8 +314,11 @@ class PosTerminal extends Page
                 'total_price'     => $this->totalPrice,
                 'discount'        => $this->discount,
                 'discount_amount' => $this->discountAmount,
-                'total_payment'   => $this->totalPayment,
-                'payment_method'  => $this->paymentMethod,
+                'total_payment'      => $this->totalPayment,
+                'payment_method'     => $this->paymentMethodId
+                    ? (\App\Models\PaymentMethod::find($this->paymentMethodId)?->code ?? 'cash')
+                    : 'cash',
+                'payment_method_id'  => $this->paymentMethodId,
                 'payment_status'  => 'paid',
                 'status'          => 'processing',
             ]);

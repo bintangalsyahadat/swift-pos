@@ -76,12 +76,12 @@
         </div>
         <div>
             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Payment</label>
-            <select wire:model.live="paymentMethod"
+            <select wire:model.live="paymentMethodId"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option value="cash">Cash</option>
-                <option value="credit">Credit Card</option>
-                <option value="debit">Debit Card</option>
-                <option value="qris">QRIS</option>
+                <option value="">— Select —</option>
+                @foreach ($this->paymentMethods as $pm)
+                <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                @endforeach
             </select>
         </div>
     </div>

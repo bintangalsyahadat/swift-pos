@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->databaseNotifications()
-            ->brandName('SwiftPos')
+            ->brandName(fn() => \App\Models\Setting::get('general.store_name', 'SwiftPOS'))
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -85,8 +85,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
-                    ->label(fn (): string => Auth::user()?->name ?? 'Profile')
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->label(fn(): string => Auth::user()?->name ?? 'Profile')
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle')
             ]);
     }
