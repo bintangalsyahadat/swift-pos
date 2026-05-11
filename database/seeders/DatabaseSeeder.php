@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             InitialStockSeeder::class,
             OrderSeeder::class,
+            PaymentMethodSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

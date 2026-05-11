@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class PaymentMethodPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:PaymentMethod');
@@ -71,4 +71,5 @@ class PaymentMethodPolicy
     {
         return $authUser->can('Reorder:PaymentMethod');
     }
+
 }

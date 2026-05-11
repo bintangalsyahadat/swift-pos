@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class CashierPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:Cashier');
@@ -71,4 +71,5 @@ class CashierPolicy
     {
         return $authUser->can('Reorder:Cashier');
     }
+
 }
