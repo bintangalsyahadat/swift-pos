@@ -107,7 +107,6 @@ class PosTerminal extends Page
         return $this->sessionId ? PosSession::find($this->sessionId) : null;
     }
 
-    #[Computed]
     public function getProductsProperty()
     {
         return Product::query()
@@ -121,13 +120,11 @@ class PosTerminal extends Page
             ->get();
     }
 
-    #[Computed]
     public function getCustomersProperty()
     {
         return Customer::orderBy('name')->get();
     }
 
-    #[Computed]
     public function getFilteredCustomersProperty()
     {
         return Customer::query()
@@ -141,7 +138,6 @@ class PosTerminal extends Page
             ->get();
     }
 
-    #[Computed]
     public function getSelectedCustomerProperty(): ?Customer
     {
         return $this->customerId ? Customer::find($this->customerId) : null;
@@ -171,45 +167,38 @@ class PosTerminal extends Page
         $this->customerId = null;
     }
 
-    #[Computed]
     public function getPaymentMethodsProperty()
     {
         return PaymentMethod::active()->get();
     }
 
-    #[Computed]
     public function getHasCustomerProperty(): bool
     {
         return (bool) ($this->customerId
             ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null));
     }
 
-    #[Computed]
     public function getTotalPriceProperty(): float
     {
         return collect($this->cart)->sum('subtotal');
     }
 
-    #[Computed]
     public function getDiscountAmountProperty(): float
     {
         return round($this->totalPrice * ($this->discount / 100), 2);
     }
 
-    #[Computed]
     public function getTotalPaymentProperty(): float
     {
         return $this->totalPrice - $this->discountAmount;
     }
 
-    #[Computed]
     public function getIsCashPaymentProperty(): bool
     {
         $pm = PaymentMethod::find($this->paymentMethodId);
         return $pm && $pm->type === 'cash';
     }
 
-    #[Computed]
     public function getChangeAmountProperty(): int
     {
         if (! $this->isCashPayment) return 0;
@@ -548,7 +537,6 @@ class PosTerminal extends Page
     }
 
     // ─── Computed: receipt order ───────────────────────────────────────────────
-    #[Computed]
     public function getReceiptOrderProperty(): ?Order
     {
         if (! $this->receiptOrderId) {
