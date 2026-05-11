@@ -55,6 +55,7 @@ class PosTerminal extends Page
     public int    $discount        = 0;
     public ?int   $paymentMethodId = null; // FK to payment_methods
     public string $search          = '';
+    public int    $cashPaid        = 0;    // nominal uang yang diberikan customer (cash only)
 
     // ─── Checkout modal ───────────────────────────────────────────────────────
     public bool $showCheckoutModal = false;
@@ -199,6 +200,21 @@ class PosTerminal extends Page
     public function getTotalPaymentProperty(): float
     {
         return $this->totalPrice - $this->discountAmount;
+    }
+
+    #[Computed]
+    public function getIsCashPaymentProperty(): bool
+    {
+        $pm = PaymentMethod::find($this->paymentMethodId);
+        return $pm && $pm->type === 'cash';
+    }
+
+    #[Computed]
+    public function getChangeAmountProperty(): int
+    {
+        if (! $this->isCashPayment) return 0;
+        $change = $this->cashPaid - (int) ceil($this->totalPayment);
+        return max(0, $change);
     }
 
     // ─── Session: Open ────────────────────────────────────────────────────────
@@ -388,10 +404,11 @@ class PosTerminal extends Page
 
     public function clearCart(): void
     {
-        $this->cart          = [];
-        $this->customerId    = null;
-        $this->discount      = 0;
+        $this->cart            = [];
+        $this->customerId      = null;
+        $this->discount        = 0;
         $this->paymentMethodId = null;
+        $this->cashPaid        = 0;
     }
 
     private function recalculateSubtotal(int $productId): void
@@ -416,6 +433,7 @@ class PosTerminal extends Page
             $this->paymentMethodId = PaymentMethod::active()->value('id');
         }
 
+        $this->cashPaid = 0;
         $this->showCheckoutModal = true;
     }
 
@@ -436,6 +454,16 @@ class PosTerminal extends Page
             return;
         }
 
+        // Validasi cash: nominal harus >= total
+        if ($this->isCashPayment && $this->cashPaid < (int) ceil($this->totalPayment)) {
+            Notification::make()
+                ->title('Nominal uang kurang')
+                ->body('Nominal yang dibayarkan harus ≥ total tagihan.')
+                ->warning()
+                ->send();
+            return;
+        }
+
         // Gunakan default customer dari Setting jika tidak dipilih
         $customerId = $this->customerId
             ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null);
@@ -452,9 +480,12 @@ class PosTerminal extends Page
             return;
         }
 
+        $isCash         = $this->isCashPayment;
+        $cashPaid       = $isCash ? $this->cashPaid : null;
+        $changeAmount   = $isCash ? $this->changeAmount : null;
         $createdOrderId = null;
 
-        DB::transaction(function () use ($customerId, &$createdOrderId) {
+        DB::transaction(function () use ($customerId, $cashPaid, $changeAmount, &$createdOrderId) {
             $userId = Auth::id();
 
             $order = Order::create([
@@ -466,6 +497,8 @@ class PosTerminal extends Page
                 'discount'           => $this->discount,
                 'discount_amount'    => $this->discountAmount,
                 'total_payment'      => $this->totalPayment,
+                'cash_paid'          => $cashPaid,
+                'change_amount'      => $changeAmount,
                 'payment_method'     => PaymentMethod::find($this->paymentMethodId)?->code ?? 'cash',
                 'payment_method_id'  => $this->paymentMethodId,
                 'payment_status'     => 'paid',

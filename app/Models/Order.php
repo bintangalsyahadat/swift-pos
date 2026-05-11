@@ -40,6 +40,8 @@ class Order extends Model
         'discount',
         'discount_amount',
         'total_payment',
+        'cash_paid',
+        'change_amount',
         'payment_method',
         'payment_status',
     ];

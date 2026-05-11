@@ -251,7 +251,7 @@
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">Rp</span>
-                        <input type="number" wire:model.live="actualBalance" min="0" step="1000" placeholder="0"
+                        <input type="number" wire:model.lazy="actualBalance" min="0" step="1000" placeholder="0"
                             class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                     </div>
                     @error('actualBalance') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
@@ -502,27 +502,80 @@
                 </div>
                 @endif
 
+                {{-- Cash paid input — hanya tampil jika payment method = cash --}}
+                @if($this->isCashPayment)
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-2">
+                    <label class="block text-sm font-semibold text-amber-800 dark:text-amber-300">
+                        Nominal Dibayar (Cash)
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">Rp</span>
+                        <input type="number"
+                            wire:model.lazy="cashPaid"
+                            min="0"
+                            step="1000"
+                            placeholder="{{ number_format((int) ceil($this->totalPayment), 0, ',', '.') }}"
+                            class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                    </div>
+                    {{-- Quick amount buttons --}}
+                    <div class="flex flex-wrap gap-1.5">
+                        @php
+                        $total = (int) ceil($this->totalPayment);
+                        $suggestions = [];
+                        foreach ([1000,2000,5000,10000,20000,50000,100000] as $denom) {
+                        $rounded = (int)(ceil($total / $denom) * $denom);
+                        if (!in_array($rounded, $suggestions)) $suggestions[] = $rounded;
+                        if (count($suggestions) >= 4) break;
+                        }
+                        @endphp
+                        @foreach($suggestions as $sug)
+                        <button type="button" wire:click="$set('cashPaid', {{ $sug }})"
+                            class="text-xs px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-800/30 transition font-medium">
+                            {{ number_format($sug, 0, ',', '.') }}
+                        </button>
+                        @endforeach
+                        <button type="button" wire:click="$set('cashPaid', {{ $total }})"
+                            class="text-xs px-2.5 py-1 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition font-medium">
+                            Pas
+                        </button>
+                    </div>
+                    {{-- Kembalian --}}
+                    @if($cashPaid > 0)
+                    @php $change = $cashPaid - (int) ceil($this->totalPayment); @endphp
+                    <div class="flex justify-between items-center pt-1 border-t border-amber-200 dark:border-amber-700">
+                        <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">Kembalian</span>
+                        <span class="text-lg font-extrabold {{ $change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                            Rp {{ number_format(max(0, $change), 0, ',', '.') }}
+                            @if($change < 0)
+                                <span class="text-xs font-normal">(kurang {{ number_format(abs($change), 0, ',', '.') }})</span>
+                        @endif
+                        </span>
+                    </div>
+                    @endif
+                </div>
+                @endif
+
             </div>
 
             {{-- Footer --}}
             <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-800 shrink-0 space-y-2">
                 <button wire:click="pay" wire:loading.attr="disabled"
-                    @disabled(!$paymentMethodId || !$this->hasCustomer)
-                    class="w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition
-                    {{ $paymentMethodId && $this->hasCustomer
+                    @disabled(!$paymentMethodId || !$this->hasCustomer || ($this->isCashPayment && $cashPaid < (int) ceil($this->totalPayment)))
+                        class="w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition
+                        {{ ($paymentMethodId && $this->hasCustomer && (!$this->isCashPayment || $cashPaid >= (int) ceil($this->totalPayment)))
                             ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg'
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed' }}">
-                    {{-- Normal state --}}
-                    <svg wire:loading.remove wire:target="pay" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span wire:loading.remove wire:target="pay">Confirm Payment — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
-                    {{-- Loading state --}}
-                    <svg wire:loading wire:target="pay" class="animate-spin w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <span wire:loading wire:target="pay">Processing…</span>
+                        {{-- Normal state --}}
+                        <svg wire:loading.remove wire:target="pay" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span wire:loading.remove wire:target="pay">Confirm Payment — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                        {{-- Loading state --}}
+                        <svg wire:loading wire:target="pay" class="animate-spin w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span wire:loading wire:target="pay">Processing…</span>
                 </button>
                 <button wire:click="closeCheckoutModal" class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     Cancel
@@ -654,6 +707,16 @@
                             <span>Payment</span>
                             <span>{{ $order->paymentMethod?->name ?? ucfirst($order->payment_method) }}</span>
                         </div>
+                        @if($order->cash_paid)
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;color:#666;">
+                            <span>Cash</span>
+                            <span>{{ $currency }} {{ $fmt($order->cash_paid) }}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin:2px 0;font-weight:bold;color:#000;">
+                            <span>Kembalian</span>
+                            <span>{{ $currency }} {{ $fmt($order->change_amount ?? 0) }}</span>
+                        </div>
+                        @endif
                     </div>
 
                     @if($footerMsg)
