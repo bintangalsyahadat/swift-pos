@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 
 class PosTerminal extends Page
@@ -36,7 +37,7 @@ class PosTerminal extends Page
 
     // ─── Cashier / Session ────────────────────────────────────────────────────
     public ?Cashier $cashier      = null;
-    public ?PosSession $session   = null;
+    public ?int     $sessionId    = null;   // store ID only, not the model
 
     // ─── Open-session form ────────────────────────────────────────────────────
     public int $openingBalance = 0;
@@ -79,12 +80,12 @@ class PosTerminal extends Page
         $open = PosSession::openSessionForTerminal($this->cashier_id);
 
         if ($open) {
-            if ($open->user_id !== Auth::id()) {
+            if ((int) $open->user_id !== (int) Auth::id()) {
                 abort(403, 'Terminal "' . $this->cashier->name . '" is already in use by another cashier.');
             }
-            // Resume own session
-            $this->session = $open;
-            $this->phase   = 'operational';
+            // Resume own session — store only the ID to avoid model hydration policy checks
+            $this->sessionId = $open->id;
+            $this->phase     = 'operational';
         }
 
         // Default payment method = first active one (usually Cash)
@@ -98,6 +99,14 @@ class PosTerminal extends Page
 
     // ─── Computed properties ──────────────────────────────────────────────────
 
+    /** Lazily load the PosSession from DB — never stored as model property to avoid Shield policy checks on hydration. */
+    #[Computed]
+    public function posSession(): ?PosSession
+    {
+        return $this->sessionId ? PosSession::find($this->sessionId) : null;
+    }
+
+    #[Computed]
     public function getProductsProperty()
     {
         return Product::query()
@@ -111,11 +120,13 @@ class PosTerminal extends Page
             ->get();
     }
 
+    #[Computed]
     public function getCustomersProperty()
     {
         return Customer::orderBy('name')->get();
     }
 
+    #[Computed]
     public function getFilteredCustomersProperty()
     {
         return Customer::query()
@@ -129,6 +140,7 @@ class PosTerminal extends Page
             ->get();
     }
 
+    #[Computed]
     public function getSelectedCustomerProperty(): ?Customer
     {
         return $this->customerId ? Customer::find($this->customerId) : null;
@@ -158,27 +170,32 @@ class PosTerminal extends Page
         $this->customerId = null;
     }
 
+    #[Computed]
     public function getPaymentMethodsProperty()
     {
         return PaymentMethod::active()->get();
     }
 
+    #[Computed]
     public function getHasCustomerProperty(): bool
     {
         return (bool) ($this->customerId
             ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null));
     }
 
+    #[Computed]
     public function getTotalPriceProperty(): float
     {
         return collect($this->cart)->sum('subtotal');
     }
 
+    #[Computed]
     public function getDiscountAmountProperty(): float
     {
         return round($this->totalPrice * ($this->discount / 100), 2);
     }
 
+    #[Computed]
     public function getTotalPaymentProperty(): float
     {
         return $this->totalPrice - $this->discountAmount;
@@ -203,7 +220,7 @@ class PosTerminal extends Page
             return;
         }
 
-        $this->session = PosSession::create([
+        $newSession = PosSession::create([
             'terminal_id'     => $this->cashier_id,
             'user_id'         => Auth::id(),
             'opened_at'       => now(),
@@ -211,7 +228,8 @@ class PosTerminal extends Page
             'state'           => 'open',
         ]);
 
-        $this->phase = 'operational';
+        $this->sessionId = $newSession->id;
+        $this->phase     = 'operational';
     }
 
     // ─── Session: Show close form ─────────────────────────────────────────────
@@ -231,8 +249,8 @@ class PosTerminal extends Page
 
     public function updatedActualBalance($value): void
     {
-        if ($this->session) {
-            $expected            = $this->session->computeExpectedBalance();
+        if ($this->posSession) {
+            $expected            = $this->posSession->computeExpectedBalance();
             $this->notesRequired = ((int) $value !== $expected);
         }
     }
@@ -241,7 +259,8 @@ class PosTerminal extends Page
 
     public function closeSession(): void
     {
-        $session  = $this->session;
+        $session  = $this->posSession;
+        abort_if(! $session, 403);
         $expected = $session->computeExpectedBalance();
         $diff     = (int) $this->actualBalance - $expected;
 
@@ -262,6 +281,8 @@ class PosTerminal extends Page
             'closing_notes'     => $diff !== 0 ? $this->closingNotes : null,
             'state'             => 'closed',
         ]);
+
+        $this->sessionId = null;
 
         Notification::make()
             ->title('Session closed successfully')
@@ -439,7 +460,7 @@ class PosTerminal extends Page
             $order = Order::create([
                 'customer_id'        => $customerId,
                 'cashier_id'         => $this->cashier_id,
-                'pos_session_id'     => $this->session->id,
+                'pos_session_id'     => $this->sessionId,
                 'order_date'         => now(),
                 'total_price'        => $this->totalPrice,
                 'discount'           => $this->discount,
@@ -494,6 +515,7 @@ class PosTerminal extends Page
     }
 
     // ─── Computed: receipt order ───────────────────────────────────────────────
+    #[Computed]
     public function getReceiptOrderProperty(): ?Order
     {
         if (! $this->receiptOrderId) {

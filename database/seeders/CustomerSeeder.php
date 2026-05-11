@@ -21,7 +21,7 @@ class CustomerSeeder extends Seeder
         ];
 
         foreach ($customers as $customer) {
-            Customer::create($customer);
+            Customer::firstOrCreate(['email' => $customer['email']], $customer);
         }
     }
 }

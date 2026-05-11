@@ -14,11 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            'name'     => 'Admin',
-            'email'    => 'admin@swiftpos.com',
-            'password' => Hash::make('12345678'),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'admin@swiftpos.com'],
+            [
+                'name'              => 'Admin',
+                'password'          => Hash::make('12345678'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->command->call('shield:super-admin', ['--user' => $user->id, '--panel' => 'admin']);
 

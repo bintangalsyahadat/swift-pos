@@ -10,10 +10,10 @@
             <span class="hidden sm:block text-gray-300 dark:text-gray-600">|</span>
             <span class="hidden sm:block font-semibold text-gray-700 dark:text-gray-200 text-sm truncate">{{ $cashier->name }}</span>
             <span class="hidden sm:block text-xs text-gray-400 shrink-0">({{ $cashier->code }})</span>
-            @if($phase === 'operational' && $session)
+            @if($phase === 'operational' && $this->posSession)
             <span class="flex items-center gap-1.5 text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full border border-green-200 dark:border-green-700 shrink-0">
                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block"></span>
-                <span class="hidden sm:inline">Shift:</span> {{ $session->opened_at->format('H:i') }}
+                <span class="hidden sm:inline">Shift:</span> {{ $this->posSession->opened_at->format('H:i') }}
             </span>
             @endif
         </div>
@@ -217,24 +217,24 @@
     {{-- ══════════════════════════════════════════════ PHASE: close_session --}}
     @if($phase === 'close_session')
     @php
-    $expectedBal = $session ? $session->computeExpectedBalance() : 0;
-    $cashSalesAmt = $session ? $session->cashSales() : 0;
+    $expectedBal = $this->posSession ? $this->posSession->computeExpectedBalance() : 0;
+    $cashSalesAmt = $this->posSession ? $this->posSession->cashSales() : 0;
     @endphp
     <div class="flex-1 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
         <div class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden my-4">
             <div class="bg-red-600 px-6 py-5 text-white">
                 <h2 class="text-lg font-bold">Close Shift</h2>
-                <p class="text-red-200 text-sm">{{ $cashier->name }} — {{ $session?->opened_at->format('d M Y, H:i') }}</p>
+                <p class="text-red-200 text-sm">{{ $cashier->name }} — {{ $this->posSession?->opened_at->format('d M Y, H:i') }}</p>
             </div>
             <div class="p-4 sm:p-6 space-y-4 sm:space-y-5">
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-700 text-sm">
                     <div class="flex justify-between px-4 py-2.5">
                         <span class="text-gray-500">Shift Started</span>
-                        <span class="font-medium">{{ $session?->opened_at->format('H:i') }}</span>
+                        <span class="font-medium">{{ $this->posSession?->opened_at->format('H:i') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
                         <span class="text-gray-500">Opening Balance</span>
-                        <span class="font-medium">IDR {{ number_format($session?->opening_balance ?? 0, 0, ',', '.') }}</span>
+                        <span class="font-medium">IDR {{ number_format($this->posSession?->opening_balance ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
                         <span class="text-gray-500">Cash Sales</span>

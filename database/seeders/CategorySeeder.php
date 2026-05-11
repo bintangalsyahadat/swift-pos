@@ -57,15 +57,18 @@ class CategorySeeder extends Seeder
             $subs = $item['subs'];
             unset($item['subs']);
 
-            $category = Category::create($item);
+            $category = Category::firstOrCreate(['name' => $item['name']], $item);
 
             foreach ($subs as $sub) {
-                SubCategory::create([
-                    'category_id' => $category->id,
-                    'name'        => $sub['name'],
-                    'description' => $sub['description'],
-                    'is_active'   => true,
-                ]);
+                SubCategory::firstOrCreate(
+                    ['name' => $sub['name'], 'category_id' => $category->id],
+                    [
+                        'category_id' => $category->id,
+                        'name'        => $sub['name'],
+                        'description' => $sub['description'],
+                        'is_active'   => true,
+                    ]
+                );
             }
         }
     }
