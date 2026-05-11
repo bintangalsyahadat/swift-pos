@@ -1,6 +1,19 @@
 <div
     x-data="{ cartOpen: false }"
-    class="min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col">
+    x-init="
+        const beforeUnloadHandler = function(e) {
+            const hasCart    = document.querySelector('[data-cart-has-items]') !== null;
+            const hasSession = document.querySelector('[data-session-open]') !== null;
+            if (hasCart || hasSession) {
+                e.preventDefault();
+                e.returnValue = 'You have an active session or items in the cart. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        };
+        window.addEventListener('beforeunload', beforeUnloadHandler);
+        $el.addEventListener('remove', () => window.removeEventListener('beforeunload', beforeUnloadHandler));
+    "
+    class="h-screen bg-gray-100 dark:bg-gray-950 flex flex-col overflow-hidden">
 
     {{-- ══════════════════════════════════════════════════════════════ NAVBAR --}}
     <nav class="shrink-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
@@ -70,6 +83,12 @@
 
     {{-- ══════════════════════════════════════════════════ PHASE: operational --}}
     @if($phase === 'operational')
+    {{-- Marker: session sedang open (dipakai oleh beforeunload guard) --}}
+    <span data-session-open class="hidden"></span>
+    @if(!empty($cart))
+    {{-- Marker: cart ada isi --}}
+    <span data-cart-has-items class="hidden"></span>
+    @endif
     <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
 
         {{-- ── Products panel ───────────────────────────────────────────────── --}}
@@ -137,7 +156,7 @@
         </div>
 
         {{-- ── Cart: Desktop sidebar ─────────────────────────────────────────── --}}
-        <div class="hidden lg:flex w-[340px] xl:w-[380px] shrink-0 flex-col border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div class="hidden lg:flex w-[340px] xl:w-[380px] shrink-0 flex-col border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 min-h-0">
             @include('filament.pages.pos-terminal-cart')
         </div>
 
@@ -190,10 +209,10 @@
             <p class="text-xs text-gray-500">{{ collect($cart)->sum('qty') }} item(s)</p>
             <p class="font-bold text-primary-600 text-base leading-tight">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</p>
         </div>
-        <button wire:click="checkout" wire:loading.attr="disabled"
+        <button wire:click="openCheckoutModal" wire:loading.attr="disabled"
             class="shrink-0 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2">
-            <span wire:loading.remove wire:target="checkout">Checkout</span>
-            <span wire:loading wire:target="checkout">Processing…</span>
+            <span wire:loading.remove wire:target="openCheckoutModal">Checkout</span>
+            <span wire:loading wire:target="openCheckoutModal">Loading…</span>
         </button>
     </div>
     @endif
@@ -274,6 +293,246 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ══════════════════════════════════════════════════ CUSTOMER PICKER MODAL --}}
+    @if($showCustomerModal)
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" wire:click.self="closeCustomerModal">
+        <div class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]">
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <h2 class="font-bold text-gray-900 dark:text-white text-base">Pilih Customer</h2>
+                <button wire:click="closeCustomerModal" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Search --}}
+            <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                    </svg>
+                    <input type="text"
+                        wire:model.live.debounce.250ms="customerSearch"
+                        placeholder="Cari nama, nomor HP, atau email…"
+                        class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        autofocus />
+                </div>
+            </div>
+
+            {{-- Customer list --}}
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800 min-h-0">
+                @forelse($this->filteredCustomers as $customer)
+                <button wire:click="selectCustomer({{ $customer->id }})"
+                    class="w-full flex items-start gap-3 px-5 py-3.5 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-left transition
+                        {{ $customerId == $customer->id ? 'bg-primary-50 dark:bg-primary-900/20' : '' }}">
+                    {{-- Avatar initial --}}
+                    <div class="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                        {{ strtoupper(substr($customer->name, 0, 1)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $customer->name }}</p>
+                            @if($customerId == $customer->id)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary-600 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            @endif
+                        </div>
+                        <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                            @if($customer->phone)
+                            <span class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                {{ $customer->phone }}
+                            </span>
+                            @endif
+                            @if($customer->email)
+                            <span class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                {{ $customer->email }}
+                            </span>
+                            @endif
+                            @if($customer->address)
+                            <span class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 truncate max-w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="truncate">{{ $customer->address }}</span>
+                            </span>
+                            @endif
+                        </div>
+                    </div>
+                </button>
+                @empty
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p class="text-sm font-medium">Tidak ada customer ditemukan</p>
+                    @if($customerSearch)
+                    <p class="text-xs mt-1">Coba kata kunci lain</p>
+                    @endif
+                </div>
+                @endforelse
+            </div>
+
+            {{-- Footer --}}
+            <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0">
+                <button wire:click="closeCustomerModal" class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
+    @endif
+
+    {{-- ══════════════════════════════════════════════════════ CHECKOUT MODAL --}}
+    @if($showCheckoutModal)
+    {{-- Backdrop --}}
+    <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" wire:click.self="closeCheckoutModal">
+        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <div>
+                    <h2 class="font-bold text-gray-900 dark:text-white text-base">Payment</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $cashier->name }} &middot; {{ now()->format('d M Y, H:i') }}</p>
+                </div>
+                <button wire:click="closeCheckoutModal" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div class="overflow-y-auto flex-1 p-5 space-y-4">
+
+                {{-- Order items --}}
+                <div class="space-y-1.5">
+                    @foreach($cart as $item)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700 dark:text-gray-300">
+                            {{ $item['name'] }}
+                            <span class="text-gray-400 text-xs ml-1">×{{ $item['qty'] }}</span>
+                        </span>
+                        <span class="font-medium text-gray-800 dark:text-white shrink-0 ml-3">IDR {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Totals --}}
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 space-y-1.5 border border-gray-100 dark:border-gray-700">
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Subtotal</span>
+                        <span>IDR {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
+                    </div>
+                    @if($discount > 0)
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Discount ({{ $discount }}%)</span>
+                        <span class="text-red-500">- IDR {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+                    <div class="flex justify-between text-lg font-extrabold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <span>Total</span>
+                        <span class="text-primary-600">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                {{-- Warning: customer belum ada & default belum diset --}}
+                @if(! $this->hasCustomer)
+                <div class="flex items-start gap-3 rounded-xl border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Customer belum dipilih</p>
+                        <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                            Kembali dan pilih customer, atau atur
+                            <a href="{{ \App\Filament\Pages\SettingsPage::getUrl() }}" target="_blank"
+                                class="underline font-medium hover:text-amber-900">Default Customer di Settings</a>
+                            agar transaksi bisa diproses.
+                        </p>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Payment method --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach($this->paymentMethods as $pm)
+                        <button type="button"
+                            wire:click="$set('paymentMethodId', {{ $pm->id }})"
+                            class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition text-left
+                                {{ $paymentMethodId == $pm->id
+                                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-primary-300' }}">
+                            @if($pm->icon)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($pm->icon) }}" class="w-6 h-6 object-contain rounded shrink-0" alt="">
+                            @endif
+                            <span class="truncate">{{ $pm->name }}</span>
+                            @if($paymentMethodId == $pm->id)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-auto shrink-0 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            @endif
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- QR Image — tampil jika metode yang dipilih adalah qr_code + punya qr_image --}}
+                @php $selectedPm = $this->paymentMethods->firstWhere('id', $paymentMethodId); @endphp
+                @if($selectedPm && $selectedPm->type === 'qr_code' && $selectedPm->qr_image)
+                <div class="flex flex-col items-center gap-2 py-2">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Scan QRIS below to pay</p>
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url($selectedPm->qr_image) }}"
+                        class="w-48 h-48 object-contain rounded-xl border border-gray-200 dark:border-gray-700 bg-white p-2"
+                        alt="QRIS {{ $selectedPm->name }}">
+                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400">{{ $selectedPm->name }}</p>
+                </div>
+                @endif
+
+            </div>
+
+            {{-- Footer --}}
+            <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-800 shrink-0 space-y-2">
+                <button wire:click="pay" wire:loading.attr="disabled"
+                    @disabled(!$paymentMethodId || !$this->hasCustomer)
+                    class="w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition
+                    {{ $paymentMethodId && $this->hasCustomer
+                            ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed' }}">
+                    {{-- Normal state --}}
+                    <svg wire:loading.remove wire:target="pay" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span wire:loading.remove wire:target="pay">Confirm Payment — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                    {{-- Loading state --}}
+                    <svg wire:loading wire:target="pay" class="animate-spin w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span wire:loading wire:target="pay">Processing…</span>
+                </button>
+                <button wire:click="closeCheckoutModal" class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    Cancel
+                </button>
+            </div>
+
         </div>
     </div>
     @endif

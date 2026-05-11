@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Customer;
 use App\Models\Setting;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -24,10 +25,11 @@ class SettingsPage extends Page
     // ── Livewire properties ───────────────────────────────────────────────────
 
     // General
-    public string $general_store_name     = 'SwiftPOS';
-    public string $general_currency       = 'IDR';
-    public string $general_timezone       = 'Asia/Jakarta';
-    public string $general_receipt_footer = '';
+    public string $general_store_name        = 'SwiftPOS';
+    public string $general_currency          = 'IDR';
+    public string $general_timezone          = 'Asia/Jakarta';
+    public string $general_receipt_footer    = '';
+    public ?int   $general_default_customer_id = null;
 
     // Xendit
     public bool   $xendit_enabled         = false;
@@ -40,10 +42,11 @@ class SettingsPage extends Page
 
     public function mount(): void
     {
-        $this->general_store_name     = Setting::get('general.store_name',     'SwiftPOS');
-        $this->general_currency       = Setting::get('general.currency',        'IDR');
-        $this->general_timezone       = Setting::get('general.timezone',        'Asia/Jakarta');
-        $this->general_receipt_footer = Setting::get('general.receipt_footer',  '');
+        $this->general_store_name          = Setting::get('general.store_name',     'SwiftPOS');
+        $this->general_currency            = Setting::get('general.currency',        'IDR');
+        $this->general_timezone            = Setting::get('general.timezone',        'Asia/Jakarta');
+        $this->general_receipt_footer      = Setting::get('general.receipt_footer',  '');
+        $this->general_default_customer_id = (int) Setting::get('general.default_customer_id') ?: null;
 
         $this->xendit_enabled         = Setting::getBool('xendit.enabled');
         $this->xendit_environment     = Setting::get('xendit.environment',     'sandbox');
@@ -57,12 +60,13 @@ class SettingsPage extends Page
     protected function rules(): array
     {
         $rules = [
-            'general_store_name'     => 'required|string|max:100',
-            'general_currency'       => 'required|string|max:10',
-            'general_timezone'       => 'required|string',
-            'general_receipt_footer' => 'nullable|string|max:500',
-            'xendit_enabled'         => 'boolean',
-            'xendit_environment'     => 'required_if:xendit_enabled,true|in:sandbox,production',
+            'general_store_name'          => 'required|string|max:100',
+            'general_currency'            => 'required|string|max:10',
+            'general_timezone'            => 'required|string',
+            'general_receipt_footer'      => 'nullable|string|max:500',
+            'general_default_customer_id' => 'nullable|integer|exists:customers,id',
+            'xendit_enabled'              => 'boolean',
+            'xendit_environment'          => 'required_if:xendit_enabled,true|in:sandbox,production',
         ];
 
         if ($this->xendit_enabled) {
@@ -81,10 +85,11 @@ class SettingsPage extends Page
         $this->validate();
 
         Setting::setMany([
-            'general.store_name'     => $this->general_store_name,
-            'general.currency'       => $this->general_currency,
-            'general.timezone'       => $this->general_timezone,
-            'general.receipt_footer' => $this->general_receipt_footer,
+            'general.store_name'          => $this->general_store_name,
+            'general.currency'            => $this->general_currency,
+            'general.timezone'            => $this->general_timezone,
+            'general.receipt_footer'      => $this->general_receipt_footer,
+            'general.default_customer_id' => $this->general_default_customer_id,
         ], 'general');
 
         Setting::setMany([
@@ -104,6 +109,11 @@ class SettingsPage extends Page
     public function getTitle(): string
     {
         return 'Settings';
+    }
+
+    public function getCustomersProperty()
+    {
+        return Customer::orderBy('name')->get();
     }
 
     public static function canAccess(): bool

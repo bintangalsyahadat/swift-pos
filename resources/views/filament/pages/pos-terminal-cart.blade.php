@@ -56,34 +56,47 @@
 
 {{-- Cart footer: totals + checkout --}}
 <div class="border-t border-gray-100 dark:border-gray-800 p-4 space-y-3 shrink-0">
-    {{-- Customer --}}
+    {{-- Customer picker --}}
     <div>
-        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Customer</label>
-        <select wire:model.live="customerId"
-            class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-            <option value="">— Select customer —</option>
-            @foreach ($this->customers as $customer)
-            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-            @endforeach
-        </select>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Customer <span class="text-gray-400 font-normal">(optional)</span>
+        </label>
+        @if($this->selectedCustomer)
+        {{-- Customer terpilih --}}
+        <div class="flex items-center gap-2 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20 px-3 py-2">
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-primary-800 dark:text-primary-200 truncate">{{ $this->selectedCustomer->name }}</p>
+                @if($this->selectedCustomer->phone)
+                <p class="text-xs text-primary-600 dark:text-primary-400 truncate">{{ $this->selectedCustomer->phone }}</p>
+                @endif
+            </div>
+            <button wire:click="clearCustomer" class="shrink-0 text-primary-400 hover:text-red-500 transition p-0.5" title="Hapus">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <button wire:click="openCustomerModal" class="shrink-0 text-primary-400 hover:text-primary-600 transition p-0.5" title="Ganti customer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 0110 16.414H8v-2a2 2 0 01.586-1.414z" />
+                </svg>
+            </button>
+        </div>
+        @else
+        {{-- Belum dipilih --}}
+        <button wire:click="openCustomerModal"
+            class="w-full flex items-center gap-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 px-3 py-2 hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition text-left">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span>Pilih customer…</span>
+        </button>
+        @endif
     </div>
-    {{-- Discount + Payment --}}
-    <div class="grid grid-cols-2 gap-2">
-        <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Discount (%)</label>
-            <input type="number" wire:model.live="discount" min="0" max="100"
-                class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-        </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Payment</label>
-            <select wire:model.live="paymentMethodId"
-                class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option value="">— Select —</option>
-                @foreach ($this->paymentMethods as $pm)
-                <option value="{{ $pm->id }}">{{ $pm->name }}</option>
-                @endforeach
-            </select>
-        </div>
+    {{-- Discount --}}
+    <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Discount (%)</label>
+        <input type="number" wire:model.live="discount" min="0" max="100"
+            class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
     </div>
     {{-- Totals --}}
     <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 space-y-1.5">
@@ -103,10 +116,14 @@
         </div>
     </div>
     {{-- Checkout button --}}
-    <button wire:click="checkout" wire:loading.attr="disabled"
+    <button wire:click="openCheckoutModal" wire:loading.attr="disabled"
+        @disabled(empty($cart))
         class="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition
             {{ !empty($cart) ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed' }}">
-        <span wire:loading.remove wire:target="checkout">Charge IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
-        <span wire:loading wire:target="checkout">Processing…</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" wire:loading.remove wire:target="openCheckoutModal">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <span wire:loading.remove wire:target="openCheckoutModal">Checkout — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+        <span wire:loading wire:target="openCheckoutModal">Loading…</span>
     </button>
 </div>

@@ -50,10 +50,17 @@ class PosTerminal extends Page
     public array $cart = [];
 
     // ─── Transaction form ─────────────────────────────────────────────────────
-    public ?int   $customerId       = null;
-    public int    $discount         = 0;
-    public ?int   $paymentMethodId  = null; // FK to payment_methods
-    public string $search           = '';
+    public ?int   $customerId      = null;
+    public int    $discount        = 0;
+    public ?int   $paymentMethodId = null; // FK to payment_methods
+    public string $search          = '';
+
+    // ─── Checkout modal ───────────────────────────────────────────────────────
+    public bool $showCheckoutModal = false;
+
+    // ─── Customer picker modal ────────────────────────────────────────────────
+    public bool   $showCustomerModal  = false;
+    public string $customerSearch     = '';
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -105,9 +112,57 @@ class PosTerminal extends Page
         return Customer::orderBy('name')->get();
     }
 
+    public function getFilteredCustomersProperty()
+    {
+        return Customer::query()
+            ->when($this->customerSearch, fn($q) => $q->where(function ($query) {
+                $query->where('name',  'like', '%' . $this->customerSearch . '%')
+                    ->orWhere('phone', 'like', '%' . $this->customerSearch . '%')
+                    ->orWhere('email', 'like', '%' . $this->customerSearch . '%');
+            }))
+            ->orderBy('name')
+            ->limit(50)
+            ->get();
+    }
+
+    public function getSelectedCustomerProperty(): ?Customer
+    {
+        return $this->customerId ? Customer::find($this->customerId) : null;
+    }
+
+    public function openCustomerModal(): void
+    {
+        $this->customerSearch = '';
+        $this->showCustomerModal = true;
+    }
+
+    public function closeCustomerModal(): void
+    {
+        $this->showCustomerModal = false;
+        $this->customerSearch   = '';
+    }
+
+    public function selectCustomer(int $id): void
+    {
+        $this->customerId       = $id;
+        $this->showCustomerModal = false;
+        $this->customerSearch   = '';
+    }
+
+    public function clearCustomer(): void
+    {
+        $this->customerId = null;
+    }
+
     public function getPaymentMethodsProperty()
     {
         return PaymentMethod::active()->get();
+    }
+
+    public function getHasCustomerProperty(): bool
+    {
+        return (bool) ($this->customerId
+            ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null));
     }
 
     public function getTotalPriceProperty(): float
@@ -280,47 +335,70 @@ class PosTerminal extends Page
 
     // ─── Checkout ─────────────────────────────────────────────────────────────
 
-    public function checkout(): void
+    public function openCheckoutModal(): void
     {
         if (empty($this->cart)) {
             Notification::make()->title('Cart is empty')->warning()->send();
             return;
         }
 
-        if (! $this->customerId) {
-            Notification::make()->title('Please select a customer')->warning()->send();
+        // Default payment method jika belum dipilih
+        if (! $this->paymentMethodId) {
+            $this->paymentMethodId = PaymentMethod::active()->value('id');
+        }
+
+        $this->showCheckoutModal = true;
+    }
+
+    public function closeCheckoutModal(): void
+    {
+        $this->showCheckoutModal = false;
+    }
+
+    public function pay(): void
+    {
+        if (empty($this->cart)) {
+            Notification::make()->title('Cart is empty')->warning()->send();
             return;
         }
 
-        DB::transaction(function () {
+        if (! $this->paymentMethodId) {
+            Notification::make()->title('Please select a payment method')->warning()->send();
+            return;
+        }
+
+        // Gunakan default customer dari Setting jika tidak dipilih
+        $customerId = $this->customerId
+            ?? ((int) \App\Models\Setting::get('general.default_customer_id') ?: null);
+
+        // Jika masih null, tampilkan pesan & stop
+        if (! $customerId) {
+            $this->showCheckoutModal = false;
+            Notification::make()
+                ->title('Customer belum dipilih')
+                ->body('Pilih customer di form, atau atur Default Customer di halaman Settings terlebih dahulu.')
+                ->warning()
+                ->persistent()
+                ->send();
+            return;
+        }
+
+        DB::transaction(function () use ($customerId) {
             $userId = Auth::id();
 
-            $year  = now()->format('Y');
-            $month = now()->format('m');
-            $last  = Order::whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->whereNotNull('order_number')
-                ->orderByDesc('id')
-                ->value('order_number');
-            $lastNumber  = $last ? (int) substr($last, -4) : 0;
-            $orderNumber = 'O/' . $year . '/' . $month . '/' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-
             $order = Order::create([
-                'order_number'    => $orderNumber,
-                'customer_id'     => $this->customerId,
-                'cashier_id'      => $this->cashier_id,
-                'pos_session_id'  => $this->session->id,
-                'order_date'      => now(),
-                'total_price'     => $this->totalPrice,
-                'discount'        => $this->discount,
-                'discount_amount' => $this->discountAmount,
+                'customer_id'        => $customerId,
+                'cashier_id'         => $this->cashier_id,
+                'pos_session_id'     => $this->session->id,
+                'order_date'         => now(),
+                'total_price'        => $this->totalPrice,
+                'discount'           => $this->discount,
+                'discount_amount'    => $this->discountAmount,
                 'total_payment'      => $this->totalPayment,
-                'payment_method'     => $this->paymentMethodId
-                    ? (\App\Models\PaymentMethod::find($this->paymentMethodId)?->code ?? 'cash')
-                    : 'cash',
+                'payment_method'     => PaymentMethod::find($this->paymentMethodId)?->code ?? 'cash',
                 'payment_method_id'  => $this->paymentMethodId,
-                'payment_status'  => 'paid',
-                'status'          => 'processing',
+                'payment_status'     => 'paid',
+                'status'             => 'completed',
             ]);
 
             foreach ($this->cart as $item) {
@@ -343,8 +421,13 @@ class PosTerminal extends Page
             }
         });
 
-        Notification::make()->title('Transaction completed')->success()->send();
-
+        $this->showCheckoutModal = false;
         $this->clearCart();
+
+        Notification::make()
+            ->title('Payment successful')
+            ->body('Order has been recorded.')
+            ->success()
+            ->send();
     }
 }

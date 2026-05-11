@@ -64,6 +64,22 @@
                         @error('general_receipt_footer') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="sm:col-span-2">
+                        <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                            Default Customer
+                            <span class="text-xs font-normal text-gray-500 ml-1">(untuk transaksi tanpa customer spesifik / customer umum)</span>
+                        </label>
+                        <select wire:model="general_default_customer_id"
+                            class="fi-select-input block w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">— Tidak ada default —</option>
+                            @foreach($this->customers as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">Jika kasir tidak memilih customer di POS, order akan otomatis menggunakan customer ini.</p>
+                        @error('general_default_customer_id') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+
                 </div>
             </div>
         </div>
