@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Cashier;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -166,6 +167,13 @@ class OrderForm
                 Section::make()
                     ->description('Payment Information')
                     ->schema([
+                        Select::make('cashier_id')
+                            ->label('Cashier')
+                            ->relationship('cashier', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
+                            ->searchable()
+                            ->nullable()
+                            ->columnSpanFull()
+                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextEntry::make('status')
                             ->formatStateUsing(fn(string $state): string => ucfirst($state))
                             ->badge()

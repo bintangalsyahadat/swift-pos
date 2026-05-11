@@ -72,6 +72,9 @@ class OrderInfolist
                         Section::make()
                             ->label('Payment Information')
                             ->schema([
+                                TextEntry::make('cashier.name')
+                                    ->label('Cashier')
+                                    ->placeholder('—'),
                                 TextEntry::make('total_payment')
                                     ->label('Total Payment')
                                     ->money('IDR'),

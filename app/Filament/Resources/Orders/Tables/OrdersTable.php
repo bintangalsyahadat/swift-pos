@@ -26,6 +26,11 @@ class OrdersTable
                 TextColumn::make('customer.name')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('cashier.name')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->placeholder('—'),
                 TextColumn::make('order_date')
                     ->date()
                     ->sortable(),

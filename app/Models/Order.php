@@ -13,8 +13,20 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function cashier()
+    {
+        return $this->belongsTo(Cashier::class);
+    }
+
+    public function posSession()
+    {
+        return $this->belongsTo(PosSession::class);
+    }
+
     protected $fillable = [
         'customer_id',
+        'cashier_id',
+        'pos_session_id',
         'order_number',
         'order_date',
         'total_price',
