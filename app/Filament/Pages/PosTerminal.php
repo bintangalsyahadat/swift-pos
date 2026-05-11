@@ -271,6 +271,50 @@ class PosTerminal extends Page
 
     // ─── Cart ─────────────────────────────────────────────────────────────────
 
+    // ─── Barcode scan ─────────────────────────────────────────────────────────
+
+    public function scanBarcode(string $code): void
+    {
+        $code = trim($code);
+        if (! $code) return;
+
+        $product = Product::where('barcode', $code)
+            ->orWhere('sku', $code)
+            ->where('is_active', true)
+            ->first();
+
+        if (! $product) {
+            Notification::make()
+                ->title('Produk tidak ditemukan')
+                ->body("Tidak ada produk dengan barcode / SKU: \"{$code}\"")
+                ->warning()
+                ->send();
+            return;
+        }
+
+        if ($product->currentStock() <= 0) {
+            Notification::make()
+                ->title('Stok habis')
+                ->body("{$product->name} tidak memiliki stok tersedia.")
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $this->addToCart($product->id);
+
+        Notification::make()
+            ->title('Ditambahkan ke cart')
+            ->body($product->name)
+            ->success()
+            ->duration(1500)
+            ->send();
+
+        $this->dispatch('cart-updated');
+    }
+
+    // ─── Cart ─────────────────────────────────────────────────────────────────
+
     public function addToCart(int $productId): void
     {
         $product = Product::find($productId);

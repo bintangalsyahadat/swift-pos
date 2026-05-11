@@ -1,18 +1,5 @@
 <div
     x-data="{ cartOpen: false }"
-    x-init="
-        const beforeUnloadHandler = function(e) {
-            const hasCart    = document.querySelector('[data-cart-has-items]') !== null;
-            const hasSession = document.querySelector('[data-session-open]') !== null;
-            if (hasCart || hasSession) {
-                e.preventDefault();
-                e.returnValue = 'You have an active session or items in the cart. Are you sure you want to leave?';
-                return e.returnValue;
-            }
-        };
-        window.addEventListener('beforeunload', beforeUnloadHandler);
-        $el.addEventListener('remove', () => window.removeEventListener('beforeunload', beforeUnloadHandler));
-    "
     class="h-screen bg-gray-100 dark:bg-gray-950 flex flex-col overflow-hidden">
 
     {{-- ══════════════════════════════════════════════════════════════ NAVBAR --}}
@@ -96,9 +83,18 @@
 
             {{-- Search + mobile cart toggle --}}
             <div class="flex items-center gap-2">
-                <input type="text" wire:model.live.debounce.300ms="search"
-                    placeholder="Search by name, SKU or barcode…"
-                    class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <div class="relative flex-1">
+                    {{-- Icon scan --}}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8H3a2 2 0 00-2 2v10a2 2 0 002 2h4a2 2 0 002-2V10a2 2 0 00-2-2zm12 0h2a2 2 0 012 2v10a2 2 0 01-2 2h-4a2 2 0 01-2-2V10a2 2 0 012-2zM9 16h6" />
+                    </svg>
+                    <input
+                        id="pos-search-input"
+                        type="text"
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="Scan barcode atau ketik nama / SKU…"
+                        class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                </div>
 
                 {{-- Cart toggle (mobile only) --}}
                 <button
@@ -538,3 +534,66 @@
     @endif
 
 </div>
+
+@script
+<script>
+    // ── Focus search input ────────────────────────────────────────────────────
+    function posSearchFocus() {
+        var el = document.getElementById('pos-search-input');
+        if (el) el.focus();
+    }
+
+    // Auto-focus saat load
+    setTimeout(posSearchFocus, 100);
+
+    // Re-focus setelah scan/cart update
+    $wire.on('cart-updated', function() {
+        setTimeout(posSearchFocus, 50);
+    });
+
+    // ── Enter di search input = scan barcode ──────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        var searchInput = document.getElementById('pos-search-input');
+        if (!searchInput) return;
+
+        // Jika focus di input lain, jangan intercept
+        var active = document.activeElement;
+        var tag = active ? active.tagName.toLowerCase() : '';
+        var isOtherInput = (tag === 'input' || tag === 'textarea' || tag === 'select') &&
+            active !== searchInput;
+        if (isOtherInput) return;
+
+        // Ctrl/Alt/Meta shortcuts — jangan intercept
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+        // Redirect focus ke search input agar scan langsung masuk
+        if (active !== searchInput && e.key.length === 1) {
+            searchInput.focus();
+            // Biarkan karakter masuk secara natural
+            return;
+        }
+
+        // Enter di search input = proses sebagai barcode
+        if (e.key === 'Enter' && active === searchInput) {
+            e.preventDefault();
+            var val = searchInput.value.trim();
+            if (val.length >= 2) {
+                $wire.scanBarcode(val);
+                searchInput.value = '';
+                $wire.set('search', '');
+            }
+        }
+    });
+
+    // ── Before unload guard ───────────────────────────────────────────────────
+    window.addEventListener('beforeunload', function(e) {
+        var hasCart = document.querySelector('[data-cart-has-items]') !== null;
+        var hasSession = document.querySelector('[data-session-open]') !== null;
+        if (hasCart || hasSession) {
+            e.preventDefault();
+            e.returnValue = 'Shift masih aktif atau cart belum dikosongkan. Yakin ingin keluar?';
+            return e.returnValue;
+        }
+    });
+</script>
+@endscript
