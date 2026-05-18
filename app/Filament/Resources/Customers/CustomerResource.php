@@ -23,9 +23,12 @@ class CustomerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::UserGroup;
-    protected static string|UnitEnum|null $navigationGroup = 'Customer Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Pelanggan';
+    protected static ?string $navigationLabel = 'Pelanggan';
+    protected static ?string $modelLabel = 'Pelanggan';
+    protected static ?string $pluralModelLabel = 'Pelanggan';
 
-    protected static ?string $recordTitleAttribute = 'customers';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

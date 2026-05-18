@@ -19,7 +19,7 @@ class ViewOrder extends ViewRecord
                 ->visible(fn() => !in_array($this->record->status, ['completed', 'cancelled'])),
 
             Action::make('process')
-                ->label('Process Order')
+                ->label('Proses Pesanan')
                 ->outlined()
                 ->icon('heroicon-o-arrow-path')
                 ->visible(fn() => $this->record->status === 'new')
@@ -30,7 +30,7 @@ class ViewOrder extends ViewRecord
                 }),
 
             Action::make('complete')
-                ->label('Set to Paid')
+                ->label('Tandai Lunas')
                 ->outlined()
                 ->icon('heroicon-o-check-circle')
                 ->visible(fn() => $this->record->status === 'processing')
@@ -44,7 +44,7 @@ class ViewOrder extends ViewRecord
                 }),
 
             Action::make('cancel')
-                ->label('Cancel')
+                ->label('Batalkan')
                 ->color('danger')
                 ->outlined()
                 ->icon('heroicon-o-x-circle')
@@ -56,7 +56,7 @@ class ViewOrder extends ViewRecord
                 }),
 
             Action::make('draft')
-                ->label('Set to Draft')
+                ->label('Set ke Draft')
                 ->color('gray')
                 ->icon('heroicon-o-document')
                 ->visible(function () {

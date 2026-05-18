@@ -21,38 +21,38 @@ class PosSessionsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('terminal.code')
-                    ->label('Code')
+                    ->label('Kode')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('user.name')
-                    ->label('Cashier')
+                    ->label('Kasir')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('opened_at')
-                    ->label('Opened')
+                    ->label('Dibuka')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
                 TextColumn::make('closed_at')
-                    ->label('Closed')
+                    ->label('Ditutup')
                     ->dateTime('d M Y, H:i')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('opening_balance')
-                    ->label('Opening')
+                    ->label('Saldo Awal')
                     ->money('IDR')
                     ->sortable(),
                 TextColumn::make('expected_balance')
-                    ->label('Expected')
+                    ->label('Perkiraan')
                     ->money('IDR')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('actual_balance')
-                    ->label('Actual')
+                    ->label('Aktual')
                     ->money('IDR')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('difference_amount')
-                    ->label('Difference')
+                    ->label('Selisih')
                     ->formatStateUsing(
                         fn($state) => $state !== null
                             ? ($state >= 0 ? '+' : '') . 'IDR ' . number_format($state, 0, ',', '.')
@@ -75,17 +75,17 @@ class PosSessionsTable
                     ->sortable(),
                 TextColumn::make('orders_count')
                     ->counts('orders')
-                    ->label('Orders')
+                    ->label('Pesanan')
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('has_discrepancy')
-                    ->label('Has Discrepancy')
+                    ->label('Ada Selisih')
                     ->query(fn(Builder $query) => $query->whereNotNull('difference_amount')
                         ->where('difference_amount', '!=', 0))
                     ->toggle(),
                 Filter::make('open')
-                    ->label('Currently Open')
+                    ->label('Sedang Dibuka')
                     ->query(fn(Builder $query) => $query->where('state', 'open'))
                     ->toggle(),
             ])

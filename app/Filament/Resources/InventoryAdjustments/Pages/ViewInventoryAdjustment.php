@@ -30,7 +30,7 @@ class ViewInventoryAdjustment extends ViewRecord
                     $this->refreshFormData(['status']);
 
                     \Filament\Notifications\Notification::make()
-                        ->title('Adjustment dikonfirmasi')
+                        ->title('Penyesuaian dikonfirmasi')
                         ->body('Stock move telah dibuat untuk semua produk.')
                         ->success()
                         ->send();

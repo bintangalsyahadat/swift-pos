@@ -14,19 +14,22 @@ class CashierForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('code')
+                    ->label('Kode')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(50)
                     ->alphaDash(),
                 Textarea::make('description')
+                    ->label('Deskripsi')
                     ->maxLength(500)
                     ->columnSpanFull(),
                 Toggle::make('is_active')
                     ->default(true)
-                    ->label('Active'),
+                    ->label('Aktif'),
             ])->columns(2);
     }
 }

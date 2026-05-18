@@ -17,20 +17,25 @@ class CustomersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('phone')
+                    ->label('Telepon')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Alamat Email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('address')
+                    ->label('Alamat')
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

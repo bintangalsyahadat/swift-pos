@@ -14,14 +14,18 @@ class BrandForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required(),
                 TextInput::make('description')
+                    ->label('Deskripsi')
                     ->default(null),
                 FileUpload::make('image')
+                    ->label('Gambar')
                     ->image()
                     ->maxSize(2048)
                     ->directory('Products/Brands'),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->default(true),
             ]);
     }

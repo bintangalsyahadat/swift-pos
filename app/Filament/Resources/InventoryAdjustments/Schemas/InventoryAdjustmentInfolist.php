@@ -12,7 +12,7 @@ class InventoryAdjustmentInfolist
     {
         return $schema
             ->components([
-                Section::make('Informasi Adjustment')
+                Section::make('Informasi Penyesuaian')
                     ->schema([
                         TextEntry::make('name')->label('Nama'),
                         TextEntry::make('reference')->label('Referensi')->placeholder('-'),

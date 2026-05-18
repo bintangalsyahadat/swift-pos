@@ -10,7 +10,7 @@ class CustomerChartWidget extends ChartWidget
 {
     protected static ?int $sort = 3;
 
-    protected ?string $heading = 'New Customers per Day';
+    protected ?string $heading = 'Pelanggan Baru per Hari';
 
     protected string $color = 'success';
 
@@ -19,9 +19,9 @@ class CustomerChartWidget extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            '7'  => 'Last 7 days',
-            '30' => 'Last 30 days',
-            '90' => 'Last 90 days',
+            '7'  => '7 Hari Terakhir',
+            '30' => '30 Hari Terakhir',
+            '90' => '90 Hari Terakhir',
         ];
     }
 
@@ -42,7 +42,7 @@ class CustomerChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'           => 'New Customers',
+                    'label'           => 'Pelanggan Baru',
                     'data'            => $data,
                     'backgroundColor' => 'rgba(34, 197, 94, 0.2)',
                     'borderColor'     => 'rgba(34, 197, 94, 1)',

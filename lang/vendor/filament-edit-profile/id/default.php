@@ -44,7 +44,7 @@ return [
     'browser_section_title' => 'Sesi Browser',
     'browser_section_description' => 'Kelola dan keluar dari sesi aktif Anda di browser dan perangkat lain.',
     'browser_sessions_content' => 'Jika perlu, Anda dapat keluar dari semua sesi browser Anda di semua perangkat. Beberapa sesi terbaru Anda terdaftar di bawah; daftar ini mungkin tidak lengkap. Jika Anda merasa akun Anda telah dikompromikan, perbarui kata sandi Anda.',
-    'browser_sessions_device' => 'Perangkat ini',
+    'browser_sessions_device' => 'Rolesgkat ini',
     'browser_sessions_last_active' => 'Terakhir aktif',
     'browser_sessions_log_out' => 'Keluar dari Sesi Browser Lain',
     'browser_sessions_confirm_pass' => 'Masukkan kata sandi Anda untuk mengonfirmasi bahwa Anda ingin keluar dari sesi browser lain di semua perangkat.',

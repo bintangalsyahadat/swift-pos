@@ -59,45 +59,52 @@ class ProductForm
         return $schema
             ->components([
                 Group::make([
-                    Section::make('Product Details')
+                    Section::make('Detail Produk')
                         ->schema([
                             TextInput::make('name')
+                                ->label('Nama')
                                 ->required(),
                             TextInput::make('base_price')
+                                ->label('Harga Modal')
                                 ->required()
                                 ->numeric()
                                 ->prefix('IDR')
                                 ->default(0),
 
                             TextInput::make('price')
+                                ->label('Harga Jual')
                                 ->required()
                                 ->numeric()
                                 ->prefix('IDR'),
                             TextInput::make('sku')
+                                ->label('SKU')
                                 ->unique()
                                 ->default(null),
                             TextInput::make('barcode')
+                                ->label('Barcode')
                                 ->unique()
                                 ->default(null),
                             Toggle::make('is_active')
-                                ->label('Is Active')
+                                ->label('Aktif')
                                 ->default(true),
                             Toggle::make('in_stock')
-                                ->label('In Stock')
+                                ->label('Tersedia di Stok')
                                 ->default(false),
                             RichEditor::make('description')
+                                ->label('Deskripsi')
                                 ->default(null)
                                 ->columnSpanFull(),
 
                         ])->columns(2),
                 ])->columnSpan(2),
 
-                Section::make('Associations')
+                Section::make('Kategori & Merek')
                     ->schema([
-                        FileUpload::make('image'),
+                        FileUpload::make('image')
+                            ->label('Gambar'),
                         Select::make('brand_id')
                             ->relationship('brand', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
-                            ->label('Brand ID')
+                            ->label('Merek')
                             ->default(null)
                             ->reactive()
                             ->afterStateUpdated(function (Get $get, Set $set) {
@@ -110,7 +117,7 @@ class ProductForm
                             ]),
                         Select::make('category_id')
                             ->relationship('category', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
-                            ->label('Category ID')
+                            ->label('Kategori')
                             ->live()
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 $set('sub_category_id', null);
@@ -123,7 +130,7 @@ class ProductForm
                                 FileUpload::make('logo'),
                             ]),
                         Select::make('sub_category_id')
-                            ->label('Sub Category ID')
+                            ->label('Sub Kategori')
                             ->options(fn(Get $get) => SubCategory::query()
                                 ->where('is_active', true)
                                 ->when($get('category_id'), fn($q, $categoryId) => $q->where('category_id', $categoryId))
@@ -137,7 +144,7 @@ class ProductForm
                             ->createOptionForm([
                                 Select::make('category_id')
                                     ->relationship('category', 'name', fn($query) => $query->where('is_active', true)->orderBy('name'))
-                                    ->label('Category')
+                                    ->label('Kategori')
                                     ->default(null),
                                 TextInput::make('name')
                                     ->required(),

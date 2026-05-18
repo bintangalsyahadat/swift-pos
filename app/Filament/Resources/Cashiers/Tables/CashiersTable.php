@@ -19,28 +19,32 @@ class CashiersTable
         return $table
             ->columns([
                 TextColumn::make('code')
+                    ->label('Kode')
                     ->searchable()
                     ->sortable()
                     ->copyable(),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('description')
+                    ->label('Deskripsi')
                     ->limit(50)
                     ->toggleable(),
                 IconColumn::make('is_active')
                     ->boolean()
-                    ->label('Active'),
+                    ->label('Aktif'),
                 TextColumn::make('session_status')
                     ->label('Status')
-                    ->getStateUsing(fn($record) => PosSession::openSessionForTerminal($record->id) ? 'In Use' : 'Available')
+                    ->getStateUsing(fn($record) => PosSession::openSessionForTerminal($record->id) ? 'Digunakan' : 'Tersedia')
                     ->badge()
-                    ->color(fn($state) => $state === 'In Use' ? 'warning' : 'success'),
+                    ->color(fn($state) => $state === 'Digunakan' ? 'warning' : 'success'),
                 TextColumn::make('orders_count')
                     ->counts('orders')
-                    ->label('Total Orders')
+                    ->label('Total Pesanan')
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -50,7 +54,7 @@ class CashiersTable
             ])
             ->recordActions([
                 Action::make('open_pos')
-                    ->label('Open POS')
+                    ->label('Buka POS')
                     ->icon('heroicon-o-computer-desktop')
                     ->color('success')
                     ->url(fn($record) => PosTerminal::getUrl(['cashier_id' => $record->id])),

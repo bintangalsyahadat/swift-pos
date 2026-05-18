@@ -11,26 +11,26 @@ class StatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('New Orders', Order::where('status', 'new')->count())
-                ->description('New Orders waiting to be processed')
+            Stat::make('Pesanan Baru', Order::where('status', 'new')->count())
+                ->description('Pesanan baru menunggu diproses')
                 ->descriptionIcon('heroicon-m-clock')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('info'),
 
-            Stat::make('Processing Orders', Order::where('status', 'processing')->count())
-                ->description('Orders currently being processed')
+            Stat::make('Pesanan Diproses', Order::where('status', 'processing')->count())
+                ->description('Pesanan sedang diproses')
                 ->descriptionIcon('heroicon-m-arrow-path')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('warning'),
 
-            Stat::make('Completed Orders', Order::where('status', 'completed')->count())
-                ->description('Orders successfully completed')
+            Stat::make('Pesanan Selesai', Order::where('status', 'completed')->count())
+                ->description('Pesanan berhasil diselesaikan')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('success'),
 
-            Stat::make('Total Revenue', 'IDR ' . number_format(Order::where('status', 'completed')->sum('total_payment'), 0))
-                ->description('Total payment from completed orders')
+            Stat::make('Total Pendapatan', 'IDR ' . number_format(Order::where('status', 'completed')->sum('total_payment'), 0))
+                ->description('Total pembayaran dari pesanan selesai')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('danger'),

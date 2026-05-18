@@ -26,12 +26,12 @@
             @if($phase === 'operational')
             <button wire:click="showCloseSession"
                 class="text-xs font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition">
-                Close Shift
+                Tutup Shift
             </button>
             @else
             <a href="{{ \App\Filament\Resources\Cashiers\CashierResource::getUrl('index') }}"
                 class="text-xs font-medium text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                &larr; Back
+                &larr; Kembali
             </a>
             @endif
         </div>
@@ -42,14 +42,14 @@
     <div class="flex-1 flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="bg-primary-600 px-6 py-5 text-white">
-                <h2 class="text-lg font-bold">Open Shift</h2>
+                <h2 class="text-lg font-bold">Buka Shift</h2>
                 <p class="text-primary-200 text-sm">Terminal: {{ $cashier->name }}</p>
             </div>
             <div class="p-6 space-y-5">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Enter the opening cash balance in the drawer before starting the shift.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Masukkan saldo kas awal di laci sebelum memulai shift.</p>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Opening Balance (IDR) <span class="text-red-500">*</span>
+                        Saldo Awal (IDR) <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">Rp</span>
@@ -60,8 +60,8 @@
                 </div>
                 <button wire:click="openSession" wire:loading.attr="disabled"
                     class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 transition">
-                    <span wire:loading.remove wire:target="openSession">Start Shift</span>
-                    <span wire:loading wire:target="openSession">Opening…</span>
+                    <span wire:loading.remove wire:target="openSession">Mulai Shift</span>
+                    <span wire:loading wire:target="openSession">Membuka…</span>
                 </button>
             </div>
         </div>
@@ -145,7 +145,7 @@
                         </span>
                     </button>
                     @empty
-                    <div class="col-span-full text-center text-gray-400 py-16">No products found</div>
+                    <div class="col-span-full text-center text-gray-400 py-16">Produk tidak ditemukan</div>
                     @endforelse
                 </div>
             </div>
@@ -180,7 +180,7 @@
             style="display:none">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
                 <div class="flex items-center gap-2">
-                    <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">Cart</span>
+                    <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">Keranjang</span>
                     @if(!empty($cart))
                     <span class="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold px-1.5 py-0.5 rounded-full">{{ collect($cart)->sum('qty') }}</span>
                     @endif
@@ -202,13 +202,13 @@
     @if(!empty($cart))
     <div class="lg:hidden shrink-0 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 flex items-center gap-3">
         <div class="flex-1 min-w-0">
-            <p class="text-xs text-gray-500">{{ collect($cart)->sum('qty') }} item(s)</p>
+            <p class="text-xs text-gray-500">{{ collect($cart)->sum('qty') }} item</p>
             <p class="font-bold text-primary-600 text-base leading-tight">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</p>
         </div>
         <button wire:click="openCheckoutModal" wire:loading.attr="disabled"
             class="shrink-0 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2">
-            <span wire:loading.remove wire:target="openCheckoutModal">Checkout</span>
-            <span wire:loading wire:target="openCheckoutModal">Loading…</span>
+            <span wire:loading.remove wire:target="openCheckoutModal">Bayar</span>
+            <span wire:loading wire:target="openCheckoutModal">Memuat…</span>
         </button>
     </div>
     @endif
@@ -223,31 +223,31 @@
     <div class="flex-1 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
         <div class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden my-4">
             <div class="bg-red-600 px-6 py-5 text-white">
-                <h2 class="text-lg font-bold">Close Shift</h2>
+                <h2 class="text-lg font-bold">Tutup Shift</h2>
                 <p class="text-red-200 text-sm">{{ $cashier->name }} — {{ $this->posSession?->opened_at->format('d M Y, H:i') }}</p>
             </div>
             <div class="p-4 sm:p-6 space-y-4 sm:space-y-5">
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-700 text-sm">
                     <div class="flex justify-between px-4 py-2.5">
-                        <span class="text-gray-500">Shift Started</span>
+                        <span class="text-gray-500">Shift Dimulai</span>
                         <span class="font-medium">{{ $this->posSession?->opened_at->format('H:i') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
-                        <span class="text-gray-500">Opening Balance</span>
+                        <span class="text-gray-500">Saldo Awal</span>
                         <span class="font-medium">IDR {{ number_format($this->posSession?->opening_balance ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
-                        <span class="text-gray-500">Cash Sales</span>
+                        <span class="text-gray-500">Penjualan Tunai</span>
                         <span class="font-medium text-green-600">+ IDR {{ number_format($cashSalesAmt, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20">
-                        <span class="font-semibold text-amber-700 dark:text-amber-300">Expected Balance</span>
+                        <span class="font-semibold text-amber-700 dark:text-amber-300">Perkiraan Saldo</span>
                         <span class="font-bold text-amber-700 dark:text-amber-300">IDR {{ number_format($expectedBal, 0, ',', '.') }}</span>
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Actual Balance (Cash in Drawer) <span class="text-red-500">*</span>
+                        Saldo Aktual (Uang di Laci) <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">Rp</span>
@@ -259,9 +259,9 @@
                     @php $diff = (int)$actualBalance - $expectedBal; @endphp
                     <div class="mt-2 flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg
                         {{ $diff === 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600' }}">
-                        @if($diff === 0) ✓ Balanced — No discrepancy
-                        @elseif($diff > 0) ▲ Surplus: IDR {{ number_format($diff, 0, ',', '.') }} — notes required
-                        @else ▼ Shortage: IDR {{ number_format(abs($diff), 0, ',', '.') }} — notes required
+                        @if($diff === 0) ✓ Seimbang — Tidak ada selisih
+                        @elseif($diff > 0) ▲ Surplus: IDR {{ number_format($diff, 0, ',', '.') }} — catatan diperlukan
+                        @else ▼ Kekurangan: IDR {{ number_format(abs($diff), 0, ',', '.') }} — catatan diperlukan
                         @endif
                     </div>
                     @endif
@@ -269,10 +269,10 @@
                 @if($notesRequired)
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Discrepancy Notes <span class="text-red-500">*</span>
+                        Catatan Selisih <span class="text-red-500">*</span>
                     </label>
                     <textarea wire:model="closingNotes" rows="3"
-                        placeholder="Explain the reason for the discrepancy…"
+                        placeholder="Jelaskan alasan selisih…"
                         class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
                     @error('closingNotes') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -280,12 +280,12 @@
                 <div class="flex flex-col sm:flex-row gap-3 pt-1">
                     <button wire:click="cancelCloseSession"
                         class="flex-1 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                        Cancel
+                        Batal
                     </button>
                     <button wire:click="closeSession" wire:loading.attr="disabled"
                         class="flex-1 py-2.5 rounded-xl font-bold text-sm bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2 transition">
-                        <span wire:loading.remove wire:target="closeSession">Close Shift</span>
-                        <span wire:loading wire:target="closeSession">Closing…</span>
+                        <span wire:loading.remove wire:target="closeSession">Tutup Shift</span>
+                        <span wire:loading wire:target="closeSession">Menutup…</span>
                     </button>
                 </div>
             </div>
@@ -403,13 +403,13 @@
             {{-- Header --}}
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
                 <div>
-                    <h2 class="font-bold text-gray-900 dark:text-white text-base">Payment</h2>
+                    <h2 class="font-bold text-gray-900 dark:text-white text-base">Pembayaran</h2>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $cashier->name }} &middot; {{ now()->format('d M Y, H:i') }}</p>
                 </div>
-                <button wire:click="closeCheckoutModal" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <button wire:click="closeCheckoutModal" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg"></button>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
                 </button>
             </div>
 
@@ -437,7 +437,7 @@
                     </div>
                     @if($discount > 0)
                     <div class="flex justify-between text-xs text-gray-500">
-                        <span>Discount ({{ $discount }}%)</span>
+                        <span>Diskon ({{ $discount }}%)</span>
                         <span class="text-red-500">- IDR {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
                     </div>
                     @endif
@@ -454,11 +454,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     </svg>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Customer belum dipilih</p>
+                        <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Pelanggan belum dipilih</p>
                         <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                            Kembali dan pilih customer, atau atur
+                            Kembali dan pilih pelanggan, atau atur
                             <a href="{{ \App\Filament\Pages\SettingsPage::getUrl() }}" target="_blank"
-                                class="underline font-medium hover:text-amber-900">Default Customer di Settings</a>
+                                class="underline font-medium hover:text-amber-900">Pelanggan Default di Pengaturan</a>
                             agar transaksi bisa diproses.
                         </p>
                     </div>
@@ -467,7 +467,7 @@
 
                 {{-- Payment method --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Metode Pembayaran</label>
                     <div class="grid grid-cols-2 gap-2">
                         @foreach($this->paymentMethods as $pm)
                         <button type="button"
@@ -494,7 +494,7 @@
                 @php $selectedPm = $this->paymentMethods->firstWhere('id', $paymentMethodId); @endphp
                 @if($selectedPm && $selectedPm->type === 'qr_code' && $selectedPm->qr_image)
                 <div class="flex flex-col items-center gap-2 py-2">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Scan QRIS below to pay</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Scan QRIS berikut untuk membayar</p>
                     <img src="{{ \Illuminate\Support\Facades\Storage::url($selectedPm->qr_image) }}"
                         class="w-48 h-48 object-contain rounded-xl border border-gray-200 dark:border-gray-700 bg-white p-2"
                         alt="QRIS {{ $selectedPm->name }}">
@@ -569,16 +569,16 @@
                         <svg wire:loading.remove wire:target="pay" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span wire:loading.remove wire:target="pay">Confirm Payment — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                        <span wire:loading.remove wire:target="pay">Konfirmasi Pembayaran — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
                         {{-- Loading state --}}
                         <svg wire:loading wire:target="pay" class="animate-spin w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                         </svg>
-                        <span wire:loading wire:target="pay">Processing…</span>
+                        <span wire:loading wire:target="pay">Memproses…</span>
                 </button>
                 <button wire:click="closeCheckoutModal" class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    Cancel
+                    Batal
                 </button>
             </div>
 
@@ -593,7 +593,7 @@
     $storeName = \App\Models\Setting::get('general.store_name', 'SwiftPOS');
     $storeAddr = \App\Models\Setting::get('general.store_address', '');
     $storePhone = \App\Models\Setting::get('general.store_phone', '');
-    $footerMsg = \App\Models\Setting::get('general.receipt_footer','Thank you for your purchase!');
+    $footerMsg = \App\Models\Setting::get('general.receipt_footer','Terima kasih atas pembelian Anda!');
     $currency = \App\Models\Setting::get('general.currency', 'IDR');
     $fmt = fn($n) => number_format($n, 0, ',', '.');
     @endphp
@@ -601,14 +601,14 @@
         <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden flex flex-col max-h-[90vh]">
             {{-- Header --}}
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
-                <h3 class="font-semibold text-gray-800 dark:text-white text-sm">Receipt</h3>
+                <h3 class="font-semibold text-gray-800 dark:text-white text-sm">Struk</h3>
                 <div class="flex items-center gap-2">
                     <button onclick="posReceiptPrint()"
                         class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-700 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
                         </svg>
-                        Print
+                        Cetak
                     </button>
                     <button wire:click="closeReceiptModal"
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition">
@@ -643,19 +643,19 @@
                     {{-- Order meta --}}
                     <div style="font-size:11px;margin-bottom:6px;">
                         <div style="display:flex;justify-content:space-between;margin:2px 0;">
-                            <span style="color:#888;">Order</span>
+                            <span style="color:#888;">No. Pesanan</span>
                             <span style="font-weight:600;">{{ $order->order_number }}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin:2px 0;">
-                            <span style="color:#888;">Date</span>
+                            <span style="color:#888;">Tanggal</span>
                             <span>{{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, H:i') }}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin:2px 0;">
-                            <span style="color:#888;">Cashier</span>
+                            <span style="color:#888;">Kasir</span>
                             <span>{{ $cashier->name ?? '-' }}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin:2px 0;">
-                            <span style="color:#888;">Customer</span>
+                            <span style="color:#888;">Pelanggan</span>
                             <span>{{ $order->customer?->name ?? '-' }}</span>
                         </div>
                     </div>
@@ -667,7 +667,7 @@
                         <thead>
                             <tr style="color:#888;border-bottom:1px solid #ddd;">
                                 <th style="text-align:left;padding-bottom:3px;font-weight:normal;">Item</th>
-                                <th style="text-align:center;padding-bottom:3px;font-weight:normal;width:30px;">Qty</th>
+                                <th style="text-align:center;padding-bottom:3px;font-weight:normal;width:30px;">Jml</th>
                                 <th style="text-align:right;padding-bottom:3px;font-weight:normal;">Subtotal</th>
                             </tr>
                         </thead>
@@ -695,7 +695,7 @@
                         </div>
                         @if($order->discount_amount > 0)
                         <div style="display:flex;justify-content:space-between;margin:2px 0;color:#c00;">
-                            <span>Discount ({{ $order->discount }}%)</span>
+                            <span>Diskon ({{ $order->discount }}%)</span>
                             <span>− {{ $currency }} {{ $fmt($order->discount_amount) }}</span>
                         </div>
                         @endif
@@ -704,12 +704,12 @@
                             <span>{{ $currency }} {{ $fmt($order->total_payment) }}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin:2px 0;color:#666;">
-                            <span>Payment</span>
+                            <span>Pembayaran</span>
                             <span>{{ $order->paymentMethod?->name ?? ucfirst($order->payment_method) }}</span>
                         </div>
                         @if($order->cash_paid)
                         <div style="display:flex;justify-content:space-between;margin:2px 0;color:#666;">
-                            <span>Cash</span>
+                            <span>Tunai</span>
                             <span>{{ $currency }} {{ $fmt($order->cash_paid) }}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin:2px 0;font-weight:bold;color:#000;">
@@ -801,7 +801,7 @@
         win.document.write(
             '<!DOCTYPE html><html><head>' +
             '<meta charset="utf-8">' +
-            '<title>Receipt</title>' +
+            '<title>Struk</title>' +
             '<style>' +
             '  * { box-sizing: border-box; margin: 0; padding: 0; }' +
             '  body { font-family: "Courier New", Courier, monospace; font-size: 12px; color: #000; background: #fff; width: 80mm; padding: 4mm; }' +

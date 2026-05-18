@@ -21,10 +21,13 @@ class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquare3Stack3d;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Square3Stack3d;
-    protected static string|UnitEnum|null $navigationGroup = 'Product Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
     protected static ?int $navigationSort = 2;
+    protected static ?string $navigationLabel = 'Kategori';
+    protected static ?string $modelLabel = 'Kategori';
+    protected static ?string $pluralModelLabel = 'Kategori';
 
-    protected static ?string $recordTitleAttribute = 'Category';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

@@ -24,10 +24,12 @@ class BrandResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookmarkSquare;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::BookmarkSquare;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Product Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
     protected static ?int $navigationSort = 1;
-
-    protected static ?string $recordTitleAttribute = 'Brand';
+    protected static ?string $navigationLabel = 'Merek';
+    protected static ?string $modelLabel = 'Merek';
+    protected static ?string $pluralModelLabel = 'Merek';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

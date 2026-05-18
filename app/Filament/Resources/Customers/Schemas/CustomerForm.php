@@ -13,15 +13,18 @@ class CustomerForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required(),
                 TextInput::make('phone')
+                    ->label('Telepon')
                     ->tel()
-                ->required(),
+                    ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Alamat Email')
                     ->email()
                     ->nullable(),
                 Textarea::make('address')
+                    ->label('Alamat')
                     ->default(null)
                     ->columnSpanFull(),
             ]);

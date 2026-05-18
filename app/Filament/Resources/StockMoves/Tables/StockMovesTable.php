@@ -61,15 +61,15 @@ class StockMovesTable
                 SelectFilter::make('type')
                     ->label('Tipe')
                     ->options([
-                        'in'  => 'In',
-                        'out' => 'Out',
+                        'in'  => 'Masuk',
+                        'out' => 'Keluar',
                     ]),
                 SelectFilter::make('state')
                     ->label('Status')
                     ->options([
                         'draft'     => 'Draft',
-                        'done'      => 'Done',
-                        'cancelled' => 'Cancelled',
+                        'done'      => 'Selesai',
+                        'cancelled' => 'Dibatalkan',
                     ]),
             ])
             ->defaultSort('created_at', 'desc');

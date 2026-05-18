@@ -2,13 +2,13 @@
 @unless($hideMobileHeader ?? false)
 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
     <div class="flex items-center gap-2">
-        <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">Cart</span>
+        <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">Keranjang</span>
         @if(!empty($cart))
         <span class="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold px-1.5 py-0.5 rounded-full">{{ collect($cart)->sum('qty') }}</span>
         @endif
     </div>
     @if(!empty($cart))
-    <button wire:click="clearCart" class="text-xs text-red-500 hover:text-red-700">Clear all</button>
+    <button wire:click="clearCart" class="text-xs text-red-500 hover:text-red-700">Hapus semua</button>
     @endif
 </div>
 @endunless
@@ -17,7 +17,7 @@
 @if($hideMobileHeader ?? false)
 @if(!empty($cart))
 <div class="flex justify-end px-4 py-2 border-b border-gray-100 dark:border-gray-800 shrink-0">
-    <button wire:click="clearCart" class="text-xs text-red-500 hover:text-red-700">Clear all</button>
+    <button wire:click="clearCart" class="text-xs text-red-500 hover:text-red-700">Hapus semua</button>
 </div>
 @endif
 @endif
@@ -48,8 +48,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <p class="text-sm font-medium">Cart is empty</p>
-        <p class="text-xs">Tap a product to add it</p>
+        <p class="text-sm font-medium">Keranjang kosong</p>
+        <p class="text-xs">Ketuk produk untuk menambahkan</p>
     </div>
     @endforelse
 </div>
@@ -59,7 +59,7 @@
     {{-- Customer picker --}}
     <div>
         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-            Customer <span class="text-gray-400 font-normal">(optional)</span>
+            Pelanggan <span class="text-gray-400 font-normal">(opsional)</span>
         </label>
         @if($this->selectedCustomer)
         {{-- Customer terpilih --}}
@@ -94,7 +94,7 @@
     </div>
     {{-- Discount --}}
     <div>
-        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Discount (%)</label>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Diskon (%)</label>
         <input type="number" wire:model.live="discount" min="0" max="100"
             class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
     </div>
@@ -106,7 +106,7 @@
         </div>
         @if($discount > 0)
         <div class="flex justify-between text-xs text-gray-500">
-            <span>Discount ({{ $discount }}%)</span>
+            <span>Diskon ({{ $discount }}%)</span>
             <span class="text-red-500">- IDR {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
         </div>
         @endif
@@ -123,7 +123,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" wire:loading.remove wire:target="openCheckoutModal">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span wire:loading.remove wire:target="openCheckoutModal">Checkout — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
-        <span wire:loading wire:target="openCheckoutModal">Loading…</span>
+        <span wire:loading.remove wire:target="openCheckoutModal">Bayar — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+        <span wire:loading wire:target="openCheckoutModal">Memuat…</span>
     </button>
 </div>

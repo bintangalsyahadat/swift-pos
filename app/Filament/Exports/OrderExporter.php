@@ -17,24 +17,33 @@ class OrderExporter extends Exporter
         return [
             ExportColumn::make('id')
                 ->label('ID'),
-            ExportColumn::make('customer_id'),
-            ExportColumn::make('order_date'),
-            ExportColumn::make('total_price'),
-            ExportColumn::make('discount'),
-            ExportColumn::make('discount_amount'),
-            ExportColumn::make('total_payment'),
-            ExportColumn::make('payment_method'),
-            ExportColumn::make('payment_status'),
-            ExportColumn::make('status'),
+            ExportColumn::make('customer_id')
+                ->label('ID Pelanggan'),
+            ExportColumn::make('order_date')
+                ->label('Tanggal Pesanan'),
+            ExportColumn::make('total_price')
+                ->label('Total Harga'),
+            ExportColumn::make('discount')
+                ->label('Diskon'),
+            ExportColumn::make('discount_amount')
+                ->label('Jumlah Diskon'),
+            ExportColumn::make('total_payment')
+                ->label('Total Pembayaran'),
+            ExportColumn::make('payment_method')
+                ->label('Metode Pembayaran'),
+            ExportColumn::make('payment_status')
+                ->label('Status Pembayaran'),
+            ExportColumn::make('status')
+                ->label('Status'),
         ];
     }
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your order export has completed and ' . Number::format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Ekspor pesanan selesai dan ' . Number::format($export->successful_rows) . ' baris berhasil diekspor.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . Number::format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+            $body .= ' ' . Number::format($failedRowsCount) . ' baris gagal diekspor.';
         }
 
         return $body;

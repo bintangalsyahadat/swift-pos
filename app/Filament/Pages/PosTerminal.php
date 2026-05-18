@@ -75,14 +75,14 @@ class PosTerminal extends Page
         abort_if(! $this->cashier_id, 404);
 
         $this->cashier = Cashier::findOrFail($this->cashier_id);
-        abort_if(! $this->cashier->is_active, 403, 'This cashier terminal is inactive.');
+        abort_if(! $this->cashier->is_active, 403, 'Terminal kasir ini tidak aktif.');
 
         // Check for an existing open session on this terminal
         $open = PosSession::openSessionForTerminal($this->cashier_id);
 
         if ($open) {
             if ((int) $open->user_id !== (int) Auth::id()) {
-                abort(403, 'Terminal "' . $this->cashier->name . '" is already in use by another cashier.');
+                abort(403, 'Terminal "' . $this->cashier->name . '" sedang digunakan oleh kasir lain.');
             }
             // Resume own session — store only the ID to avoid model hydration policy checks
             $this->sessionId = $open->id;
@@ -246,8 +246,8 @@ class PosTerminal extends Page
         $existing = PosSession::openSessionForTerminal($this->cashier_id);
         if ($existing) {
             Notification::make()
-                ->title('Terminal already open')
-                ->body('Another cashier has already opened this terminal.')
+                ->title('Terminal sudah dibuka')
+                ->body('Kasir lain sudah membuka terminal ini.')
                 ->danger()
                 ->send();
             return;
@@ -303,7 +303,7 @@ class PosTerminal extends Page
         }
 
         $this->validate($rules, [
-            'closingNotes.required' => 'Closing notes are required when there is a discrepancy.',
+            'closingNotes.required' => 'Catatan penutup diperlukan saat ada selisih.',
         ]);
 
         $session->update([
@@ -318,7 +318,7 @@ class PosTerminal extends Page
         $this->sessionId = null;
 
         Notification::make()
-            ->title('Session closed successfully')
+            ->title('Sesi berhasil ditutup')
             ->success()
             ->send();
 
@@ -441,7 +441,7 @@ class PosTerminal extends Page
     public function openCheckoutModal(): void
     {
         if (empty($this->cart)) {
-            Notification::make()->title('Cart is empty')->warning()->send();
+            Notification::make()->title('Keranjang kosong')->warning()->send();
             return;
         }
 
@@ -462,12 +462,12 @@ class PosTerminal extends Page
     public function pay(): void
     {
         if (empty($this->cart)) {
-            Notification::make()->title('Cart is empty')->warning()->send();
+            Notification::make()->title('Keranjang kosong')->warning()->send();
             return;
         }
 
         if (! $this->paymentMethodId) {
-            Notification::make()->title('Please select a payment method')->warning()->send();
+            Notification::make()->title('Silakan pilih metode pembayaran')->warning()->send();
             return;
         }
 
@@ -489,8 +489,8 @@ class PosTerminal extends Page
         if (! $customerId) {
             $this->showCheckoutModal = false;
             Notification::make()
-                ->title('Customer belum dipilih')
-                ->body('Pilih customer di form, atau atur Default Customer di halaman Settings terlebih dahulu.')
+                ->title('Pelanggan belum dipilih')
+                ->body('Pilih pelanggan di form, atau atur Pelanggan Default di halaman Pengaturan terlebih dahulu.')
                 ->warning()
                 ->persistent()
                 ->send();
@@ -550,8 +550,8 @@ class PosTerminal extends Page
         $this->clearCart();
 
         Notification::make()
-            ->title('Payment successful')
-            ->body('Order has been recorded.')
+            ->title('Pembayaran berhasil')
+            ->body('Pesanan telah dicatat.')
             ->success()
             ->send();
 

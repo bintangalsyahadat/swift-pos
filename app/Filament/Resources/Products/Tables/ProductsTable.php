@@ -18,10 +18,12 @@ class ProductsTable
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Image'),
+                    ->label('Gambar'),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('price')
+                    ->label('Harga')
                     ->money('IDR')
                     ->sortable(),
                 TextColumn::make('current_stock')
@@ -31,10 +33,12 @@ class ProductsTable
                     ->badge()
                     ->color(fn($state) => $state > 0 ? 'success' : 'danger'),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

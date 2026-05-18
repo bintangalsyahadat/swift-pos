@@ -19,37 +19,46 @@ class OrdersTable
         return $table
             ->columns([
                 TextColumn::make('order_number')
-                    ->label('Order No.')
+                    ->label('No. Pesanan')
                     ->searchable()
                     ->sortable()
                     ->copyable(),
                 TextColumn::make('customer.name')
+                    ->label('Pelanggan')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('cashier.name')
+                    ->label('Kasir')
                     ->sortable()
                     ->searchable()
                     ->toggleable()
                     ->placeholder('—'),
                 TextColumn::make('order_date')
+                    ->label('Tanggal Pesanan')
                     ->date()
                     ->sortable(),
                 TextColumn::make('total_price')
+                    ->label('Total Harga')
                     ->money('IDR')
                     ->sortable(),
                 TextColumn::make('discount')
+                    ->label('Diskon')
                     ->suffix('%')
                     ->toggleable(),
                 TextColumn::make('discount_amount')
+                    ->label('Jumlah Diskon')
                     ->money('IDR')
                     ->toggleable()
                     ->toggledHiddenByDefault(),
                 TextColumn::make('total_payment')
+                    ->label('Total Pembayaran')
                     ->money('IDR'),
                 TextColumn::make('payment_method')
+                    ->label('Metode Pembayaran')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('payment_status')
+                    ->label('Status Pembayaran')
                     ->badge()
                     ->sortable()
                     ->toggleable()
@@ -60,6 +69,7 @@ class OrdersTable
                         default => 'secondary',
                     }),
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->sortable()
                     ->color(fn($state) => match ($state) {
@@ -70,10 +80,12 @@ class OrdersTable
                         default => 'secondary',
                     }),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

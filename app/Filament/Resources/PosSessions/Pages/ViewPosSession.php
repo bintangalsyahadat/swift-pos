@@ -16,11 +16,11 @@ class ViewPosSession extends ViewRecord
     public function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Session Info')
+            Section::make('Info Sesi')
                 ->columns(3)
                 ->schema([
                     TextEntry::make('terminal.name')->label('Terminal'),
-                    TextEntry::make('terminal.code')->label('Terminal Code'),
+                    TextEntry::make('terminal.code')->label('Kode Terminal'),
                     TextEntry::make('state')
                         ->badge()
                         ->color(fn($state) => match ($state) {
@@ -28,19 +28,19 @@ class ViewPosSession extends ViewRecord
                             'closed' => 'gray',
                             default  => 'secondary',
                         }),
-                    TextEntry::make('user.name')->label('Cashier'),
-                    TextEntry::make('opened_at')->label('Opened At')->dateTime('d M Y, H:i'),
-                    TextEntry::make('closed_at')->label('Closed At')->dateTime('d M Y, H:i')->placeholder('Still open'),
+                    TextEntry::make('user.name')->label('Kasir'),
+                    TextEntry::make('opened_at')->label('Dibuka Pada')->dateTime('d M Y, H:i'),
+                    TextEntry::make('closed_at')->label('Ditutup Pada')->dateTime('d M Y, H:i')->placeholder('Masih buka'),
                 ]),
 
-            Section::make('Financial Summary')
+            Section::make('Ringkasan Keuangan')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('opening_balance')->label('Opening Balance')->money('IDR'),
-                    TextEntry::make('expected_balance')->label('Expected Balance')->money('IDR')->placeholder('—'),
-                    TextEntry::make('actual_balance')->label('Actual Balance')->money('IDR')->placeholder('—'),
+                    TextEntry::make('opening_balance')->label('Saldo Awal')->money('IDR'),
+                    TextEntry::make('expected_balance')->label('Perkiraan Saldo')->money('IDR')->placeholder('—'),
+                    TextEntry::make('actual_balance')->label('Saldo Aktual')->money('IDR')->placeholder('—'),
                     TextEntry::make('difference_amount')
-                        ->label('Difference')
+                        ->label('Selisih')
                         ->formatStateUsing(
                             fn($state) => $state !== null
                                 ? ($state >= 0 ? '+' : '') . 'IDR ' . number_format($state, 0, ',', '.')
@@ -53,8 +53,8 @@ class ViewPosSession extends ViewRecord
                             default         => 'success',
                         }),
                     TextEntry::make('closing_notes')
-                        ->label('Discrepancy Notes')
-                        ->placeholder('No notes')
+                        ->label('Catatan Selisih')
+                        ->placeholder('Tidak ada catatan')
                         ->columnSpanFull(),
                 ]),
         ]);

@@ -22,10 +22,10 @@ class PaymentMethodResource extends Resource
     protected static string|BackedEnum|null $navigationIcon       = Heroicon::OutlinedCreditCard;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::CreditCard;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
 
     protected static ?int    $navigationSort  = 50;
-    protected static ?string $navigationLabel = 'Payment Methods';
+    protected static ?string $navigationLabel = 'Metode Pembayaran';
     protected static ?string $slug            = 'payment-methods';
 
     public static function form(Schema $schema): Schema
@@ -50,8 +50,8 @@ class PaymentMethodResource extends Resource
     public static function typeOptions(): array
     {
         return [
-            'cash'    => 'Cash',
-            'card'    => 'Credit / Debit Card',
+            'cash'    => 'Tunai',
+            'card'    => 'Kartu Kredit / Debit',
             'qr_code' => 'QR Code',
         ];
     }

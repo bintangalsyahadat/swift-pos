@@ -24,9 +24,9 @@ class InventoryAdjustmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::ClipboardDocumentList;
-    protected static string|UnitEnum|null $navigationGroup = 'Product Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
     protected static ?int $navigationSort = 6;
-    protected static ?string $navigationLabel = 'Inventory Adjustment';
+    protected static ?string $navigationLabel = 'Penyesuaian Stok';
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema

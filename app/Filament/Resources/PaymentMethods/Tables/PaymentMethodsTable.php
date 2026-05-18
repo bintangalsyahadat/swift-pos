@@ -27,22 +27,22 @@ class PaymentMethodsTable
                     ->circular(),
 
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Nama')
                     ->sortable()
                     ->searchable()
                     ->weight('semibold'),
 
                 TextColumn::make('code')
-                    ->label('Code')
+                    ->label('Kode')
                     ->badge()
                     ->color('gray')
                     ->copyable(),
 
                 TextColumn::make('type')
-                    ->label('Type')
+                    ->label('Tipe')
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'cash'    => 'Cash',
-                        'card'    => 'Card',
+                        'cash'    => 'Tunai',
+                        'card'    => 'Kartu',
                         'qr_code' => 'QR Code',
                         default   => ucfirst($state),
                     })
@@ -58,14 +58,14 @@ class PaymentMethodsTable
                     ->hidden(fn() => ! Setting::getBool('xendit.enabled')),
 
                 TextColumn::make('xendit_channel_code')
-                    ->label('Channel Code')
+                    ->label('Kode Channel')
                     ->badge()
                     ->color('warning')
                     ->placeholder('—')
                     ->hidden(fn() => ! Setting::getBool('xendit.enabled')),
 
                 TextColumn::make('fee_value')
-                    ->label('Fee')
+                    ->label('Biaya')
                     ->formatStateUsing(function ($record) {
                         if (! $record->fee_type || ! $record->fee_value) {
                             return '—';
@@ -83,22 +83,22 @@ class PaymentMethodsTable
                     ->hidden(fn() => Setting::getBool('xendit.enabled')),
 
                 ToggleColumn::make('is_active')
-                    ->label('Active'),
+                    ->label('Aktif'),
 
                 TextColumn::make('sort_order')
-                    ->label('Order')
+                    ->label('Urutan')
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'cash'    => 'Cash',
-                        'card'    => 'Card',
+                        'cash'    => 'Tunai',
+                        'card'    => 'Kartu',
                         'qr_code' => 'QR Code',
                     ]),
 
                 TernaryFilter::make('is_active')
-                    ->label('Active'),
+                    ->label('Aktif'),
             ])
             ->recordActions([
                 EditAction::make(),

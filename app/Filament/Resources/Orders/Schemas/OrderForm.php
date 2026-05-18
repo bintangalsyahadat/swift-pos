@@ -28,14 +28,15 @@ class OrderForm
                     ->default(now())
                     ->disabled()
                     ->hiddenLabel()
-                    ->prefix('Date: ')
+                    ->prefix('Tanggal: ')
                     ->columnSpanFull(),
                 Group::make()
                     ->schema([
                         Section::make()
-                            ->description('Customer Information')
+                            ->description('Informasi Pelanggan')
                             ->schema([
                                 Select::make('customer_id')
+                                    ->label('Pelanggan')
                                     ->required()
                                     ->relationship('customer', 'name')
                                     ->reactive()
@@ -51,30 +52,37 @@ class OrderForm
                                     })
                                     ->createOptionForm([
                                         TextInput::make('name')
+                                            ->label('Nama')
                                             ->required(),
-                                        TextInput::make('phone'),
+                                        TextInput::make('phone')
+                                            ->label('Telepon'),
                                         TextInput::make('email')
+                                            ->label('Alamat Email')
                                             ->email(),
-                                        TextInput::make('address'),
+                                        TextInput::make('address')
+                                            ->label('Alamat'),
                                     ])
                                     ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                                 TextInput::make('phone')
+                                    ->label('Telepon')
                                     ->disabled()
                                     ->hidden(fn(Get $get) => !$get('customer_id'))
                                     ->formatStateUsing(fn($state, Get $get) => $state ?? Customer::find($get('customer_id'))->phone ?? null),
                                 TextInput::make('address')
+                                    ->label('Alamat')
                                     ->disabled()
                                     ->hidden(fn(Get $get) => !$get('customer_id'))
                                     ->formatStateUsing(fn($state, Get $get) => $state ?? Customer::find($get('customer_id'))->address ?? null)
                                     ->columnSpanFull(),
                             ])->columns(2)->columnSpanFull(),
                         Section::make()
-                            ->description('Order Details')
+                            ->description('Detail Pesanan')
                             ->schema([
                                 Repeater::make('orderDetails')
                                     ->relationship()
                                     ->schema([
                                         Select::make('product_id')
+                                            ->label('Produk')
                                             ->required()
                                             ->relationship('product', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
                                             ->getSearchResultsUsing(fn(string $search) => Product::where('is_active', true)
@@ -110,12 +118,14 @@ class OrderForm
                                             ->columnSpanFull()
                                             ->searchable(),
                                         TextInput::make('price')
+                                            ->label('Harga')
                                             ->required()
                                             ->numeric()
                                             ->prefix('IDR')
                                             ->readOnly()
                                             ->formatStateUsing(fn($state, Get $get) => $state ?? Product::find($get('product_id'))->price ?? 0),
                                         TextInput::make('quantity')
+                                            ->label('Jumlah')
                                             ->required()
                                             ->numeric()
                                             ->default(1)
@@ -148,6 +158,7 @@ class OrderForm
                                                 $set('../../total_payment', $total - $discount_amount);
                                             }),
                                         TextInput::make('subtotal')
+                                            ->label('Subtotal')
                                             ->required()
                                             ->numeric()
                                             ->readOnly()
@@ -157,7 +168,7 @@ class OrderForm
                                     ->hiddenLabel()
                                     ->addAction(
                                         fn(Action $action) => $action
-                                            ->label('Add Product')
+                                            ->label('Tambah Produk')
                                             ->icon('heroicon-o-plus')
                                     )
                             ])->columnSpanFull()->hidden(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
@@ -165,10 +176,10 @@ class OrderForm
                     ])->columnSpan(2),
 
                 Section::make()
-                    ->description('Payment Information')
+                    ->description('Informasi Pembayaran')
                     ->schema([
                         Select::make('cashier_id')
-                            ->label('Cashier')
+                            ->label('Kasir')
                             ->relationship('cashier', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
                             ->searchable()
                             ->nullable()
@@ -185,6 +196,7 @@ class OrderForm
                                 default => 'secondary',
                             }),
                         TextInput::make('total_price')
+                            ->label('Total Harga')
                             ->required()
                             ->numeric()
                             ->readOnly()
@@ -193,6 +205,7 @@ class OrderForm
                             ->columnSpanFull()
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('discount')
+                            ->label('Diskon')
                             ->required()
                             ->numeric()
                             ->default(0)
@@ -210,6 +223,7 @@ class OrderForm
                             ->columnSpan(2)
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('discount_amount')
+                            ->label('Jumlah Diskon')
                             ->required()
                             ->numeric()
                             ->readOnly()
@@ -217,6 +231,7 @@ class OrderForm
                             ->columnSpan(2)
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('total_payment')
+                            ->label('Total Pembayaran')
                             ->required()
                             ->numeric()
                             ->readOnly()
@@ -225,11 +240,12 @@ class OrderForm
                             ->columnSpanFull()
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         Select::make('payment_method')
+                            ->label('Metode Pembayaran')
                             ->required()
                             ->options([
-                                'cash' => 'Cash',
-                                'credit' => 'Credit Card',
-                                'debit' => 'Debit Card',
+                                'cash' => 'Tunai',
+                                'credit' => 'Kartu Kredit',
+                                'debit' => 'Kartu Debit',
                                 'qris' => 'QRIS',
                             ])
                             ->default('cash')
@@ -244,7 +260,7 @@ class OrderForm
                                 'failed' => 'danger',
                                 default => 'secondary',
                             })
-                            ->label('Payment Status')
+                            ->label('Status Pembayaran')
                             ->columnSpan(2),
                     ])->columnSpan(1)->columns(4),
             ])->columns(3);

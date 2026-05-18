@@ -18,10 +18,10 @@ class OrderDetailRelationManager extends RelationManager
         return $table
             ->columns([
                 ImageColumn::make('product.image')
-                    ->label('Image'),
+                    ->label('Gambar'),
                 TextColumn::make('product.name'),
                 TextColumn::make('product.price')
-                    ->label('Unit Price')
+                    ->label('Harga Satuan')
                     ->money('IDR'),
                 TextColumn::make('quantity'),
                 TextColumn::make('subtotal')
@@ -30,6 +30,5 @@ class OrderDetailRelationManager extends RelationManager
             ->headerActions([
                 // CreateAction::make(),
             ]);
-
     }
 }

@@ -16,18 +16,21 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Alamat Email')
                     ->email()
                     ->required(),
                 // DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
+                    ->label('Kata Sandi')
                     ->password()
                     ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
                     ->saved(fn(?string $state): bool => filled($state))
                     ->required(fn(string $operation): bool => $operation === 'create'),
                 Select::make('roles')
+                    ->label('Roles')
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()

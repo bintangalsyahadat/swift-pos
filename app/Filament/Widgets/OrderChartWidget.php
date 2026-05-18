@@ -10,7 +10,7 @@ class OrderChartWidget extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected ?string $heading = 'Orders per Day';
+    protected ?string $heading = 'Pesanan per Hari';
 
     protected string $color = 'primary';
 
@@ -19,9 +19,9 @@ class OrderChartWidget extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            '7'  => 'Last 7 days',
-            '30' => 'Last 30 days',
-            '90' => 'Last 90 days',
+            '7'  => '7 Hari Terakhir',
+            '30' => '30 Hari Terakhir',
+            '90' => '90 Hari Terakhir',
         ];
     }
 
@@ -42,7 +42,7 @@ class OrderChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'           => 'Orders',
+                    'label'           => 'Pesanan',
                     'data'            => $data,
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
                     'borderColor'     => 'rgba(59, 130, 246, 1)',

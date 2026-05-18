@@ -18,7 +18,7 @@ class OrderInfolist
                 Group::make()
                     ->schema([
                         TextEntry::make('order_number')
-                            ->label('Order No.')
+                            ->label('No. Pesanan')
                             ->size(TextSize::Large)
                             ->weight(FontWeight::Bold)
                             ->copyable()->columnSpan(1),
@@ -41,7 +41,7 @@ class OrderInfolist
                 Group::make()
                     ->schema([
                         Section::make()
-                            ->label('Customer Details')
+                            ->label('Detail Pelanggan')
                             ->schema([
                                 TextEntry::make('customer.name')
                                     ->numeric(),
@@ -56,7 +56,7 @@ class OrderInfolist
                             ->label('Subtotal')
                             ->schema([
                                 TextEntry::make('total_price')
-                                    ->label('Total Price')
+                                    ->label('Total Harga')
                                     ->money('IDR'),
                                 Group::make()
                                     ->schema([
@@ -70,19 +70,19 @@ class OrderInfolist
                 Group::make()
                     ->schema([
                         Section::make()
-                            ->label('Payment Information')
+                            ->label('Informasi Pembayaran')
                             ->schema([
                                 TextEntry::make('cashier.name')
-                                    ->label('Cashier')
+                                    ->label('Kasir')
                                     ->placeholder('—'),
                                 TextEntry::make('total_payment')
-                                    ->label('Total Payment')
+                                    ->label('Total Pembayaran')
                                     ->money('IDR'),
                                 Group::make()
                                     ->schema([
                                         TextEntry::make('payment_method')
                                             ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                                            ->label('Payment Method'),
+                                            ->label('Metode Pembayaran'),
                                         TextEntry::make('payment_status')
                                             ->formatStateUsing(fn(string $state): string => ucfirst($state))
                                             ->badge()
@@ -92,7 +92,7 @@ class OrderInfolist
                                                 'failed' => 'danger',
                                                 default => 'secondary',
                                             })
-                                            ->label('Payment Status'),
+                                            ->label('Status Pembayaran'),
                                     ])->columns(2)
                             ])
                     ])->columnSpanFull(),

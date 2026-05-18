@@ -24,7 +24,7 @@ class PosSessionResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Session History';
+    protected static ?string $navigationLabel = 'Riwayat Sesi';
 
     protected static ?string $modelLabel = 'POS Session';
 

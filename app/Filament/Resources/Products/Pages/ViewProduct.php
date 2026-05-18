@@ -18,7 +18,7 @@ class ViewProduct extends ViewRecord
             EditAction::make(),
 
             Action::make('stock_moves')
-                ->label('Lihat Stock Move')
+                ->label('Lihat Pergerakan Stok')
                 ->icon('heroicon-o-arrows-right-left')
                 ->color('gray')
                 ->url(fn() => StockMoveResource::getUrl('by-product') . '?product_id=' . $this->record->id),

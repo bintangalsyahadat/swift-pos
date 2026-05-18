@@ -20,19 +20,26 @@ class SubCategoriesTable
         return $table
             ->columns([
                 TextColumn::make('category.name')
+                    ->label('Kategori')
                     ->sortable(),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label('Deskripsi')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->label('Gambar'),
                 IconColumn::make('is_active')
+                    ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

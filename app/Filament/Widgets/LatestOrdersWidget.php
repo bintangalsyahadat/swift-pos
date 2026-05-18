@@ -12,7 +12,7 @@ class LatestOrdersWidget extends BaseWidget
 {
     protected static ?int $sort = 5;
 
-    protected static ?string $heading = 'Latest Orders';
+    protected static ?string $heading = 'Pesanan Terbaru';
 
     protected int | string | array $columnSpan = 1;
 
@@ -29,12 +29,13 @@ class LatestOrdersWidget extends BaseWidget
                     ->label('#')
                     ->sortable(),
                 TextColumn::make('customer.name')
-                    ->label('Customer')
+                    ->label('Pelanggan')
                     ->searchable(),
                 TextColumn::make('total_payment')
                     ->label('Total')
                     ->formatStateUsing(fn($state) => 'IDR ' . number_format($state, 0, ',', '.')),
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'completed' => 'success',
@@ -43,7 +44,7 @@ class LatestOrdersWidget extends BaseWidget
                         default     => 'gray',
                     }),
                 TextColumn::make('created_at')
-                    ->label('Date')
+                    ->label('Tanggal')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
             ])

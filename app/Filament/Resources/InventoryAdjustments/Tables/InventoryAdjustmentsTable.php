@@ -43,7 +43,7 @@ class InventoryAdjustmentsTable
                 SelectFilter::make('status')
                     ->options([
                         'draft' => 'Draft',
-                        'done'  => 'Done',
+                        'done'  => 'Selesai',
                     ]),
             ])
             ->recordActions([

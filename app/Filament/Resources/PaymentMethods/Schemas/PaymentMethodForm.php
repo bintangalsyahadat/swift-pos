@@ -19,30 +19,30 @@ class PaymentMethodForm
     {
         return $schema->components([
 
-            Section::make('Basic Info')
+            Section::make('Info Dasar')
                 ->columns(2)
                 ->schema([
                     TextInput::make('name')
-                        ->label('Name')
+                        ->label('Nama')
                         ->required()
                         ->maxLength(100)
-                        ->placeholder('e.g. Cash, QRIS, BCA Debit'),
+                        ->placeholder('cth. Tunai, QRIS, Debit BCA'),
 
                     TextInput::make('code')
-                        ->label('Code')
+                        ->label('Kode')
                         ->required()
                         ->unique(ignoreRecord: true)
                         ->maxLength(50)
                         ->alphaDash()
-                        ->placeholder('e.g. cash, qris, card_bca')
-                        ->helperText('Unique slug — used internally and in reports.'),
+                        ->placeholder('cth. cash, qris, card_bca')
+                        ->helperText('Slug unik — digunakan secara internal dan dalam laporan.'),
 
                     Select::make('type')
-                        ->label('Type')
+                        ->label('Tipe')
                         ->required()
                         ->options([
-                            'cash'    => 'Cash',
-                            'card'    => 'Credit / Debit Card',
+                            'cash'    => 'Tunai',
+                            'card'    => 'Kartu Kredit / Debit',
                             'qr_code' => 'QR Code',
                         ])
                         ->native(false)
@@ -50,20 +50,20 @@ class PaymentMethodForm
                         ->columnSpanFull(),
 
                     Textarea::make('description')
-                        ->label('Description')
+                        ->label('Deskripsi')
                         ->rows(2)
                         ->columnSpanFull(),
 
                     FileUpload::make('icon')
-                        ->label('Icon / Logo')
+                        ->label('Ikon / Logo')
                         ->image()
                         ->directory('payment-methods/icons')
                         ->columnSpanFull(),
 
                     // Static QR image — only for qr_code type when Xendit is disabled
                     FileUpload::make('qr_image')
-                        ->label('Static QRIS Image')
-                        ->helperText('Upload the static QRIS image provided by your bank/payment provider. Displayed at checkout for customers to scan.')
+                        ->label('Gambar QRIS Statis')
+                        ->helperText('Unggah gambar QRIS statis dari bank/penyedia pembayaran Anda. Ditampilkan saat checkout agar pelanggan dapat memindai.')
                         ->image()
                         ->imagePreviewHeight('200')
                         ->directory('payment-methods/qr')
@@ -71,20 +71,20 @@ class PaymentMethodForm
                         ->columnSpanFull(),
                 ]),
 
-            Section::make('Xendit Integration')
-                ->description('Leave blank for offline / manual payment methods (e.g. cash, EDC).')
+            Section::make('Integrasi Xendit')
+                ->description('Biarkan kosong untuk metode pembayaran offline/manual (mis. tunai, EDC).')
                 ->collapsed()
                 ->hidden(fn() => ! Setting::getBool('xendit.enabled'))
                 ->columns(2)
                 ->schema([
                     Toggle::make('is_online')
-                        ->label('Use Xendit API')
-                        ->helperText('Enable to process payment via Xendit.')
+                        ->label('Gunakan API Xendit')
+                        ->helperText('Aktifkan untuk memproses pembayaran melalui Xendit.')
                         ->live()
                         ->columnSpanFull(),
 
                     Select::make('xendit_channel_type')
-                        ->label('Xendit Channel Type')
+                        ->label('Tipe Channel Xendit')
                         ->options([
                             'QR_CODE'          => 'QR_CODE',
                             'VIRTUAL_ACCOUNT'  => 'VIRTUAL_ACCOUNT',
@@ -131,38 +131,38 @@ class PaymentMethodForm
 
                     KeyValue::make('xendit_channel_properties')
                         ->label('Channel Properties (JSON)')
-                        ->helperText('Optional extra config required by Xendit for specific channels (e.g. mobile_number for e-wallet).')
+                        ->helperText('Konfigurasi tambahan opsional yang diperlukan Xendit untuk channel tertentu (mis. mobile_number untuk e-wallet).')
                         ->visible(fn(Get $get) => $get('is_online'))
                         ->columnSpanFull(),
                 ]),
 
-            Section::make('Fee & Status')
+            Section::make('Biaya & Status')
                 ->columns(3)
                 ->schema([
                     Select::make('fee_type')
-                        ->label('Fee Type')
+                        ->label('Tipe Biaya')
                         ->options([
-                            'flat'       => 'Flat (IDR)',
-                            'percentage' => 'Percentage (%)',
+                            'flat'       => 'Tetap (IDR)',
+                            'percentage' => 'Persentase (%)',
                         ])
                         ->native(false)
                         ->live(),
 
                     TextInput::make('fee_value')
-                        ->label(fn(Get $get) => $get('fee_type') === 'percentage' ? 'Fee (%)' : 'Fee (IDR)')
+                        ->label(fn(Get $get) => $get('fee_type') === 'percentage' ? 'Biaya (%)' : 'Biaya (IDR)')
                         ->numeric()
                         ->minValue(0)
                         ->placeholder('0')
                         ->visible(fn(Get $get) => filled($get('fee_type'))),
 
                     TextInput::make('sort_order')
-                        ->label('Sort Order')
+                        ->label('Urutan')
                         ->numeric()
                         ->default(0)
                         ->minValue(0),
 
                     Toggle::make('is_active')
-                        ->label('Active')
+                        ->label('Aktif')
                         ->default(true)
                         ->columnSpanFull(),
                 ]),

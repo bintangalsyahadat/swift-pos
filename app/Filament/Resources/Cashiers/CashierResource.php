@@ -25,6 +25,9 @@ class CashierResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Point of Sale';
 
     protected static ?int $navigationSort = 1;
+    protected static ?string $navigationLabel = 'Terminal Kasir';
+    protected static ?string $modelLabel = 'Terminal Kasir';
+    protected static ?string $pluralModelLabel = 'Terminal Kasir';
 
     protected static ?string $recordTitleAttribute = 'name';
 

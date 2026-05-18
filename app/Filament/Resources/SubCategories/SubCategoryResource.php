@@ -22,10 +22,13 @@ class SubCategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquare2Stack;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Square2Stack;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Product Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
     protected static ?int $navigationSort = 3;
+    protected static ?string $navigationLabel = 'Sub Kategori';
+    protected static ?string $modelLabel = 'Sub Kategori';
+    protected static ?string $pluralModelLabel = 'Sub Kategori';
 
-    protected static ?string $recordTitleAttribute = 'SubCategory';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

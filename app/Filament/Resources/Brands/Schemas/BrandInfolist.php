@@ -13,17 +13,23 @@ class BrandInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
+                TextEntry::make('name')
+                    ->label('Nama'),
                 TextEntry::make('description')
+                    ->label('Deskripsi')
                     ->placeholder('-'),
                 ImageEntry::make('image')
+                    ->label('Gambar')
                     ->placeholder('-'),
                 IconEntry::make('is_active')
+                    ->label('Aktif')
                     ->boolean(),
                 TextEntry::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->placeholder('-'),
             ]);

@@ -11,17 +11,22 @@ class CustomerInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
-                TextEntry::make('phone'),
+                TextEntry::make('name')
+                    ->label('Nama'),
+                TextEntry::make('phone')
+                    ->label('Telepon'),
                 TextEntry::make('email')
-                    ->label('Email address'),
+                    ->label('Alamat Email'),
                 TextEntry::make('address')
+                    ->label('Alamat')
                     ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->placeholder('-'),
             ]);

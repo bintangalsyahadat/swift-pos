@@ -14,20 +14,20 @@ class StatsWidget extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Orders', Order::count())
-                ->description('Number of orders placed')
+            Stat::make('Total Pesanan', Order::count())
+                ->description('Jumlah pesanan yang masuk')
                 ->descriptionIcon('heroicon-o-shopping-cart', IconPosition::Before)
                 ->chart([10, 15, 20, 25, 30, 35])
                 ->color('primary'),
 
-            Stat::make('Revenue', 'IDR ' . number_format(Order::sum('total_payment'), 2))
-                ->description('Total revenue generated')
+            Stat::make('Pendapatan', 'IDR ' . number_format(Order::sum('total_payment'), 2))
+                ->description('Total pendapatan yang dihasilkan')
                 ->descriptionIcon('heroicon-o-currency-dollar', IconPosition::Before)
                 ->chart([1000, 1500, 2000, 2500, 3000, 3500])
                 ->color('success'),
 
-            Stat::make('Average Order Value', 'IDR ' . number_format(Order::avg('total_payment'), 2))
-                ->description('Average value of each order')
+            Stat::make('Rata-rata Nilai Pesanan', 'IDR ' . number_format(Order::avg('total_payment'), 2))
+                ->description('Rata-rata nilai setiap pesanan')
                 ->descriptionIcon('heroicon-o-currency-dollar', IconPosition::Before)
                 ->chart([500, 750, 1000, 1250, 1500, 1750])
                 ->color('warning'),

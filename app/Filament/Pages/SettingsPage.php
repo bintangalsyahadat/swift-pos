@@ -16,7 +16,7 @@ class SettingsPage extends Page
     protected static string|\BackedEnum|null $navigationIcon       = Heroicon::OutlinedCog6Tooth;
     protected static string|\BackedEnum|null $activeNavigationIcon = Heroicon::Cog6Tooth;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'System';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?int $navigationSort = 99;
 
@@ -109,14 +109,14 @@ class SettingsPage extends Page
         ], 'xendit');
 
         Notification::make()
-            ->title('Settings saved successfully')
+            ->title('Pengaturan berhasil disimpan')
             ->success()
             ->send();
     }
 
     public function getTitle(): string
     {
-        return 'Settings';
+        return 'Pengaturan';
     }
 
     public function getCustomersProperty()

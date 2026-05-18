@@ -11,7 +11,7 @@ return [
 
     'column.name' => 'Nama',
     'column.guard_name' => 'Nama Guard',
-    'column.roles' => 'Peran',
+    'column.roles' => 'Roles',
     'column.permissions' => 'Izin',
     'column.updated_at' => 'Terakhir Diubah',
 
@@ -34,10 +34,10 @@ return [
     */
 
     'nav.group' => 'Filament Shield',
-    'nav.role.label' => 'Peran',
+    'nav.role.label' => 'Roles',
     'nav.role.icon' => 'heroicon-o-shield-check',
-    'resource.label.role' => 'Peran',
-    'resource.label.roles' => 'Daftar Peran',
+    'resource.label.role' => 'Roles',
+    'resource.label.roles' => 'Roles',
 
     /*
     |--------------------------------------------------------------------------

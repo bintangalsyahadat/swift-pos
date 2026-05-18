@@ -12,7 +12,7 @@ class BestSellingProductsWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
 
-    protected static ?string $heading = 'Best Selling Products';
+    protected static ?string $heading = 'Produk Terlaris';
 
     protected int | string | array $columnSpan = 1;
 
@@ -28,14 +28,14 @@ class BestSellingProductsWidget extends BaseWidget
             )
             ->columns([
                 TextColumn::make('product.name')
-                    ->label('Product')
+                    ->label('Produk')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('total_qty')
-                    ->label('Qty Sold')
+                    ->label('Qty Terjual')
                     ->sortable(),
                 TextColumn::make('total_revenue')
-                    ->label('Revenue')
+                    ->label('Pendapatan')
                     ->formatStateUsing(fn($state) => 'IDR ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
             ])
