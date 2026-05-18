@@ -57,13 +57,13 @@ class OrderInfolist
                             ->schema([
                                 TextEntry::make('total_price')
                                     ->label('Total Harga')
-                                    ->money('IDR'),
+                                    ->money('IDR', locale: 'id_ID'),
                                 Group::make()
                                     ->schema([
                                         TextEntry::make('discount')
                                             ->suffix('%'),
                                         TextEntry::make('discount_amount')
-                                            ->money('IDR'),
+                                            ->money('IDR', locale: 'id_ID'),
                                     ])->columns(2),
                             ]),
                     ]),
@@ -77,7 +77,7 @@ class OrderInfolist
                                     ->placeholder('—'),
                                 TextEntry::make('total_payment')
                                     ->label('Total Pembayaran')
-                                    ->money('IDR'),
+                                    ->money('IDR', locale: 'id_ID'),
                                 Group::make()
                                     ->schema([
                                         TextEntry::make('payment_method')

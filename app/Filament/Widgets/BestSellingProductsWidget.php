@@ -36,7 +36,7 @@ class BestSellingProductsWidget extends BaseWidget
                     ->sortable(),
                 TextColumn::make('total_revenue')
                     ->label('Pendapatan')
-                    ->formatStateUsing(fn($state) => 'IDR ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn($state) => \App\Models\Setting::currencySymbol() . ' ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
             ])
             ->paginated(false);

@@ -39,7 +39,7 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('total_price')
                     ->label('Total Harga')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->sortable(),
                 TextColumn::make('discount')
                     ->label('Diskon')
@@ -47,12 +47,12 @@ class OrdersTable
                     ->toggleable(),
                 TextColumn::make('discount_amount')
                     ->label('Jumlah Diskon')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->toggleable()
                     ->toggledHiddenByDefault(),
                 TextColumn::make('total_payment')
                     ->label('Total Pembayaran')
-                    ->money('IDR'),
+                    ->money('IDR', locale: 'id_ID'),
                 TextColumn::make('payment_method')
                     ->label('Metode Pembayaran')
                     ->sortable()

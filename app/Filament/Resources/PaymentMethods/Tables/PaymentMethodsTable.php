@@ -72,7 +72,7 @@ class PaymentMethodsTable
                         }
                         return $record->fee_type === 'percentage'
                             ? $record->fee_value . '%'
-                            : 'Rp ' . number_format($record->fee_value, 0, ',', '.');
+                            : \App\Models\Setting::currencySymbol() . ' ' . number_format($record->fee_value, 0, ',', '.');
                     })
                     ->color('danger'),
 

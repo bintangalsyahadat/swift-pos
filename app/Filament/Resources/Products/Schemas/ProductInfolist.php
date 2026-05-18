@@ -19,7 +19,7 @@ class ProductInfolist
                     ->columnSpanFull(),
                 TextEntry::make('price')
                     ->label('Harga')
-                    ->money('IDR'),
+                    ->money('IDR', locale: 'id_ID'),
                 TextEntry::make('current_stock')
                     ->label('Stok')
                     ->state(fn($record) => $record->currentStock())

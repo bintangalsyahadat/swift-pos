@@ -33,7 +33,7 @@ class LatestOrdersWidget extends BaseWidget
                     ->searchable(),
                 TextColumn::make('total_payment')
                     ->label('Total')
-                    ->formatStateUsing(fn($state) => 'IDR ' . number_format($state, 0, ',', '.')),
+                    ->formatStateUsing(fn($state) => \App\Models\Setting::currencySymbol() . ' ' . number_format($state, 0, ',', '.')),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()

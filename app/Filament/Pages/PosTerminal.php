@@ -189,6 +189,12 @@ class PosTerminal extends Page
     }
 
     #[Computed]
+    public function currencySymbol(): string
+    {
+        return \App\Models\Setting::currencySymbol();
+    }
+
+    #[Computed]
     public function totalPrice(): float
     {
         return collect($this->cart)->sum('subtotal');

@@ -22,10 +22,10 @@ class OrderDetailRelationManager extends RelationManager
                 TextColumn::make('product.name'),
                 TextColumn::make('product.price')
                     ->label('Harga Satuan')
-                    ->money('IDR'),
+                    ->money('IDR', locale: 'id_ID'),
                 TextColumn::make('quantity'),
                 TextColumn::make('subtotal')
-                    ->money('IDR'),
+                    ->money('IDR', locale: 'id_ID'),
             ])
             ->headerActions([
                 // CreateAction::make(),

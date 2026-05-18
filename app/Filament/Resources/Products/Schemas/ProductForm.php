@@ -68,14 +68,14 @@ class ProductForm
                                 ->label('Harga Modal')
                                 ->required()
                                 ->numeric()
-                                ->prefix('IDR')
+                                ->prefix(\App\Models\Setting::currencySymbol())
                                 ->default(0),
 
                             TextInput::make('price')
                                 ->label('Harga Jual')
                                 ->required()
                                 ->numeric()
-                                ->prefix('IDR'),
+                                ->prefix(\App\Models\Setting::currencySymbol()),
                             TextInput::make('sku')
                                 ->label('SKU')
                                 ->unique()

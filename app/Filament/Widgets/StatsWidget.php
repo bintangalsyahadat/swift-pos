@@ -20,13 +20,13 @@ class StatsWidget extends StatsOverviewWidget
                 ->chart([10, 15, 20, 25, 30, 35])
                 ->color('primary'),
 
-            Stat::make('Pendapatan', 'IDR ' . number_format(Order::sum('total_payment'), 2))
+            Stat::make('Pendapatan', \App\Models\Setting::currencySymbol() . ' ' . number_format(Order::sum('total_payment'), 2))
                 ->description('Total pendapatan yang dihasilkan')
                 ->descriptionIcon('heroicon-o-currency-dollar', IconPosition::Before)
                 ->chart([1000, 1500, 2000, 2500, 3000, 3500])
                 ->color('success'),
 
-            Stat::make('Rata-rata Nilai Pesanan', 'IDR ' . number_format(Order::avg('total_payment'), 2))
+            Stat::make('Rata-rata Nilai Pesanan', \App\Models\Setting::currencySymbol() . ' ' . number_format(Order::avg('total_payment'), 2))
                 ->description('Rata-rata nilai setiap pesanan')
                 ->descriptionIcon('heroicon-o-currency-dollar', IconPosition::Before)
                 ->chart([500, 750, 1000, 1250, 1500, 1750])

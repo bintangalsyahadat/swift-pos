@@ -49,7 +49,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Masukkan saldo kas awal di laci sebelum memulai shift.</p>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                        Saldo Awal (IDR) <span class="text-red-500">*</span>
+                        Saldo Awal (Rp) <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">Rp</span>
@@ -203,7 +203,7 @@
     <div class="lg:hidden shrink-0 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 flex items-center gap-3">
         <div class="flex-1 min-w-0">
             <p class="text-xs text-gray-500">{{ collect($cart)->sum('qty') }} item</p>
-            <p class="font-bold text-primary-600 text-base leading-tight">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</p>
+            <p class="font-bold text-primary-600 text-base leading-tight">{{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</p>
         </div>
         <button wire:click="openCheckoutModal" wire:loading.attr="disabled"
             class="shrink-0 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2">
@@ -234,15 +234,15 @@
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
                         <span class="text-gray-500">Saldo Awal</span>
-                        <span class="font-medium">IDR {{ number_format($this->posSession?->opening_balance ?? 0, 0, ',', '.') }}</span>
+                        <span class="font-medium">{{ $this->currencySymbol }} {{ number_format($this->posSession?->opening_balance ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5">
                         <span class="text-gray-500">Penjualan Tunai</span>
-                        <span class="font-medium text-green-600">+ IDR {{ number_format($cashSalesAmt, 0, ',', '.') }}</span>
+                        <span class="font-medium text-green-600">+ {{ $this->currencySymbol }} {{ number_format($cashSalesAmt, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20">
                         <span class="font-semibold text-amber-700 dark:text-amber-300">Perkiraan Saldo</span>
-                        <span class="font-bold text-amber-700 dark:text-amber-300">IDR {{ number_format($expectedBal, 0, ',', '.') }}</span>
+                        <span class="font-bold text-amber-700 dark:text-amber-300">{{ $this->currencySymbol }} {{ number_format($expectedBal, 0, ',', '.') }}</span>
                     </div>
                 </div>
                 <div>
@@ -260,8 +260,8 @@
                     <div class="mt-2 flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg
                         {{ $diff === 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600' }}">
                         @if($diff === 0) ✓ Seimbang — Tidak ada selisih
-                        @elseif($diff > 0) ▲ Surplus: IDR {{ number_format($diff, 0, ',', '.') }} — catatan diperlukan
-                        @else ▼ Kekurangan: IDR {{ number_format(abs($diff), 0, ',', '.') }} — catatan diperlukan
+                        @elseif($diff > 0) ▲ Surplus: {{ $this->currencySymbol }} {{ number_format($diff, 0, ',', '.') }} — catatan diperlukan
+                        @else ▼ Kekurangan: {{ $this->currencySymbol }} {{ number_format(abs($diff), 0, ',', '.') }} — catatan diperlukan
                         @endif
                     </div>
                     @endif
@@ -300,7 +300,7 @@
 
             {{-- Header --}}
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-                <h2 class="font-bold text-gray-900 dark:text-white text-base">Pilih Customer</h2>
+                <h2 class="font-bold text-gray-900 dark:text-white text-base">Pilih Pelanggan</h2>
                 <button wire:click="closeCustomerModal" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -424,7 +424,7 @@
                             {{ $item['name'] }}
                             <span class="text-gray-400 text-xs ml-1">×{{ $item['qty'] }}</span>
                         </span>
-                        <span class="font-medium text-gray-800 dark:text-white shrink-0 ml-3">IDR {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                        <span class="font-medium text-gray-800 dark:text-white shrink-0 ml-3">{{ $this->currencySymbol }} {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -433,17 +433,17 @@
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 space-y-1.5 border border-gray-100 dark:border-gray-700">
                     <div class="flex justify-between text-xs text-gray-500">
                         <span>Subtotal</span>
-                        <span>IDR {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
+                        <span>{{ $this->currencySymbol }} {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
                     </div>
                     @if($discount > 0)
                     <div class="flex justify-between text-xs text-gray-500">
                         <span>Diskon ({{ $discount }}%)</span>
-                        <span class="text-red-500">- IDR {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
+                        <span class="text-red-500">- {{ $this->currencySymbol }} {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
                     </div>
                     @endif
                     <div class="flex justify-between text-lg font-extrabold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
                         <span>Total</span>
-                        <span class="text-primary-600">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                        <span class="text-primary-600">{{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
@@ -545,7 +545,7 @@
                     <div class="flex justify-between items-center pt-1 border-t border-amber-200 dark:border-amber-700">
                         <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">Kembalian</span>
                         <span class="text-lg font-extrabold {{ $change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                            Rp {{ number_format(max(0, $change), 0, ',', '.') }}
+                            {{ $this->currencySymbol }} {{ number_format(max(0, $change), 0, ',', '.') }}
                             @if($change < 0)
                                 <span class="text-xs font-normal">(kurang {{ number_format(abs($change), 0, ',', '.') }})</span>
                         @endif
@@ -569,7 +569,7 @@
                         <svg wire:loading.remove wire:target="pay" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span wire:loading.remove wire:target="pay">Konfirmasi Pembayaran — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+                        <span wire:loading.remove wire:target="pay">Konfirmasi Pembayaran — {{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
                         {{-- Loading state --}}
                         <svg wire:loading wire:target="pay" class="animate-spin w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -594,7 +594,7 @@
     $storeAddr = \App\Models\Setting::get('general.store_address', '');
     $storePhone = \App\Models\Setting::get('general.store_phone', '');
     $footerMsg = \App\Models\Setting::get('general.receipt_footer','Terima kasih atas pembelian Anda!');
-    $currency = \App\Models\Setting::get('general.currency', 'IDR');
+    $currency = $this->currencySymbol;
     $fmt = fn($n) => number_format($n, 0, ',', '.');
     @endphp
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 print:hidden" id="receipt-modal-overlay">

@@ -29,7 +29,7 @@ class StatsOverview extends StatsOverviewWidget
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('success'),
 
-            Stat::make('Total Pendapatan', 'IDR ' . number_format(Order::where('status', 'completed')->sum('total_payment'), 0))
+            Stat::make('Total Pendapatan', \App\Models\Setting::currencySymbol() . ' ' . number_format(Order::where('status', 'completed')->sum('total_payment'), 0))
                 ->description('Total pembayaran dari pesanan selesai')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->chart([7, 2, 10, 3, 15, 4, 17])

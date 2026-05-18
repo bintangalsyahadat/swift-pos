@@ -24,7 +24,7 @@ class ProductsTable
                     ->searchable(),
                 TextColumn::make('price')
                     ->label('Harga')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->sortable(),
                 TextColumn::make('current_stock')
                     ->label('Stok')

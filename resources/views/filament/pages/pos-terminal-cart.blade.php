@@ -102,17 +102,17 @@
     <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 space-y-1.5">
         <div class="flex justify-between text-xs text-gray-500">
             <span>Subtotal</span>
-            <span>IDR {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
+            <span>{{ $this->currencySymbol }} {{ number_format($this->totalPrice, 0, ',', '.') }}</span>
         </div>
         @if($discount > 0)
         <div class="flex justify-between text-xs text-gray-500">
             <span>Diskon ({{ $discount }}%)</span>
-            <span class="text-red-500">- IDR {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
+            <span class="text-red-500">- {{ $this->currencySymbol }} {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
         </div>
         @endif
         <div class="flex justify-between text-base font-bold text-gray-900 dark:text-white pt-1.5 border-t border-gray-200 dark:border-gray-700">
             <span>Total</span>
-            <span class="text-primary-600">IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+            <span class="text-primary-600">{{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
         </div>
     </div>
     {{-- Checkout button --}}
@@ -123,7 +123,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" wire:loading.remove wire:target="openCheckoutModal">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span wire:loading.remove wire:target="openCheckoutModal">Bayar — IDR {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
+        <span wire:loading.remove wire:target="openCheckoutModal">Bayar — {{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</span>
         <span wire:loading wire:target="openCheckoutModal">Memuat…</span>
     </button>
 </div>

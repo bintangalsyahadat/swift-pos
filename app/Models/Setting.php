@@ -52,4 +52,11 @@ class Setting extends Model
     {
         Cache::forget("setting:{$key}");
     }
+
+    public static function currencySymbol(): string
+    {
+        $code    = static::get('general.currency', 'IDR');
+        $symbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
+        return $symbols[$code] ?? $code;
+    }
 }

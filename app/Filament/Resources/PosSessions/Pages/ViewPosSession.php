@@ -36,14 +36,14 @@ class ViewPosSession extends ViewRecord
             Section::make('Ringkasan Keuangan')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('opening_balance')->label('Saldo Awal')->money('IDR'),
-                    TextEntry::make('expected_balance')->label('Perkiraan Saldo')->money('IDR')->placeholder('—'),
-                    TextEntry::make('actual_balance')->label('Saldo Aktual')->money('IDR')->placeholder('—'),
+                    TextEntry::make('opening_balance')->label('Saldo Awal')->money('IDR', locale: 'id_ID'),
+                    TextEntry::make('expected_balance')->label('Perkiraan Saldo')->money('IDR', locale: 'id_ID')->placeholder('—'),
+                    TextEntry::make('actual_balance')->label('Saldo Aktual')->money('IDR', locale: 'id_ID')->placeholder('—'),
                     TextEntry::make('difference_amount')
                         ->label('Selisih')
                         ->formatStateUsing(
                             fn($state) => $state !== null
-                                ? ($state >= 0 ? '+' : '') . 'IDR ' . number_format($state, 0, ',', '.')
+                                ? ($state >= 0 ? '+' : '') . \App\Models\Setting::currencySymbol() . ' ' . number_format($state, 0, ',', '.')
                                 : '—'
                         )
                         ->color(fn($state) => match (true) {

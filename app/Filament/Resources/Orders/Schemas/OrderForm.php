@@ -121,7 +121,7 @@ class OrderForm
                                             ->label('Harga')
                                             ->required()
                                             ->numeric()
-                                            ->prefix('IDR')
+                                            ->prefix(\App\Models\Setting::currencySymbol())
                                             ->readOnly()
                                             ->formatStateUsing(fn($state, Get $get) => $state ?? Product::find($get('product_id'))->price ?? 0),
                                         TextInput::make('quantity')
@@ -163,7 +163,7 @@ class OrderForm
                                             ->numeric()
                                             ->readOnly()
                                             ->default(0)
-                                            ->prefix('IDR'),
+                                            ->prefix(\App\Models\Setting::currencySymbol()),
                                     ])->columns(3)
                                     ->hiddenLabel()
                                     ->addAction(
@@ -200,7 +200,7 @@ class OrderForm
                             ->required()
                             ->numeric()
                             ->readOnly()
-                            ->prefix('IDR')
+                            ->prefix(\App\Models\Setting::currencySymbol())
                             ->default(0)
                             ->columnSpanFull()
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
@@ -227,7 +227,7 @@ class OrderForm
                             ->required()
                             ->numeric()
                             ->readOnly()
-                            ->prefix('IDR')
+                            ->prefix(\App\Models\Setting::currencySymbol())
                             ->columnSpan(2)
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         TextInput::make('total_payment')
@@ -236,7 +236,7 @@ class OrderForm
                             ->numeric()
                             ->readOnly()
                             ->default(0)
-                            ->prefix('IDR')
+                            ->prefix(\App\Models\Setting::currencySymbol())
                             ->columnSpanFull()
                             ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
                         Select::make('payment_method')

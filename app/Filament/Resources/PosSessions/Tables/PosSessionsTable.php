@@ -39,23 +39,23 @@ class PosSessionsTable
                     ->sortable(),
                 TextColumn::make('opening_balance')
                     ->label('Saldo Awal')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->sortable(),
                 TextColumn::make('expected_balance')
                     ->label('Perkiraan')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('actual_balance')
                     ->label('Aktual')
-                    ->money('IDR')
+                    ->money('IDR', locale: 'id_ID')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('difference_amount')
                     ->label('Selisih')
                     ->formatStateUsing(
                         fn($state) => $state !== null
-                            ? ($state >= 0 ? '+' : '') . 'IDR ' . number_format($state, 0, ',', '.')
+                            ? ($state >= 0 ? '+' : '') . \App\Models\Setting::currencySymbol() . ' ' . number_format($state, 0, ',', '.')
                             : '—'
                     )
                     ->color(fn($state) => match (true) {

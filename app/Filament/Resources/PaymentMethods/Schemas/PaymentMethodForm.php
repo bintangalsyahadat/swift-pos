@@ -142,14 +142,14 @@ class PaymentMethodForm
                     Select::make('fee_type')
                         ->label('Tipe Biaya')
                         ->options([
-                            'flat'       => 'Tetap (IDR)',
+                            'flat'       => 'Tetap (' . \App\Models\Setting::currencySymbol() . ')',
                             'percentage' => 'Persentase (%)',
                         ])
                         ->native(false)
                         ->live(),
 
                     TextInput::make('fee_value')
-                        ->label(fn(Get $get) => $get('fee_type') === 'percentage' ? 'Biaya (%)' : 'Biaya (IDR)')
+                        ->label(fn(Get $get) => $get('fee_type') === 'percentage' ? 'Biaya (%)' : 'Biaya (' . \App\Models\Setting::currencySymbol() . ')')
                         ->numeric()
                         ->minValue(0)
                         ->placeholder('0')

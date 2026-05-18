@@ -45,8 +45,8 @@
                         @error('general_store_phone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
-                        <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                    <!-- <div> -->
+                        <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Mata Uang <span class="text-red-500">*</span>
                         </label>
                         <select wire:model="general_currency"
@@ -55,12 +55,12 @@
                             <option value="USD">USD — US Dollar</option>
                             <option value="SGD">SGD — Singapore Dollar</option>
                             <option value="MYR">MYR — Malaysian Ringgit</option>
-                        </select>
-                        @error('general_currency') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                    </div>
+                        </select> -->
+                        @error('general_currency') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    <!-- </div> -->
 
-                    <div>
-                        <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                    <!-- <div> -->
+                        <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Zona Waktu <span class="text-red-500">*</span>
                         </label>
                         <select wire:model="general_timezone"
@@ -70,9 +70,9 @@
                             <option value="Asia/Jayapura">Asia/Jayapura (WIT, UTC+9)</option>
                             <option value="Asia/Singapore">Asia/Singapore (SGT, UTC+8)</option>
                             <option value="UTC">UTC</option>
-                        </select>
-                        @error('general_timezone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                    </div>
+                        </select> -->
+                        @error('general_timezone') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    <!-- </div> -->
 
                     <div class="sm:col-span-2">
                         <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
