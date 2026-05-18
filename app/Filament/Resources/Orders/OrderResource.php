@@ -26,7 +26,7 @@ class OrderResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::ShoppingCart;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Transaksi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Point of Sale';
     protected static ?string $navigationLabel = 'Pesanan';
     protected static ?string $modelLabel = 'Pesanan';
     protected static ?string $pluralModelLabel = 'Pesanan';

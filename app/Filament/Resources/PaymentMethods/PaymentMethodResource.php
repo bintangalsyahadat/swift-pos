@@ -22,9 +22,9 @@ class PaymentMethodResource extends Resource
     protected static string|BackedEnum|null $navigationIcon       = Heroicon::OutlinedCreditCard;
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::CreditCard;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+    protected static string|UnitEnum|null $navigationGroup = 'Point of Sale';
 
-    protected static ?int    $navigationSort  = 50;
+    protected static ?int    $navigationSort  = 3;
     protected static ?string $navigationLabel = 'Metode Pembayaran';
     protected static ?string $slug            = 'payment-methods';
 
