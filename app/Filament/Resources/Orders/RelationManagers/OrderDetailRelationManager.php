@@ -22,10 +22,10 @@ class OrderDetailRelationManager extends RelationManager
                 TextColumn::make('product.name'),
                 TextColumn::make('product.price')
                     ->label('Harga Satuan')
-                    ->money('IDR', locale: 'id_ID'),
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—'),
                 TextColumn::make('quantity'),
                 TextColumn::make('subtotal')
-                    ->money('IDR', locale: 'id_ID'),
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—'),
             ])
             ->headerActions([
                 // CreateAction::make(),

@@ -24,7 +24,7 @@ class ProductsTable
                     ->searchable(),
                 TextColumn::make('price')
                     ->label('Harga')
-                    ->money('IDR', locale: 'id_ID')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->sortable(),
                 TextColumn::make('current_stock')
                     ->label('Stok')

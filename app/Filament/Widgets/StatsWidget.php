@@ -27,7 +27,7 @@ class StatsWidget extends StatsOverviewWidget
                 ->chart([10, 15, 20, 25, 30, 35])
                 ->color('primary'),
 
-            Stat::make('Pendapatan', \App\Models\Setting::currencySymbol() . ' ' . number_format((clone $todayPaid)->sum('total_payment'), 2))
+            Stat::make('Pendapatan', \App\Models\Setting::currencySymbol() . ' ' . number_format((clone $todayPaid)->sum('total_payment'), 0, ',', '.'))
                 ->description('Total pendapatan hari ini')
                 ->descriptionIcon('heroicon-o-currency-dollar', IconPosition::Before)
                 ->chart([1000, 1500, 2000, 2500, 3000, 3500])

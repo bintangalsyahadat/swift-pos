@@ -39,16 +39,16 @@ class PosSessionsTable
                     ->sortable(),
                 TextColumn::make('opening_balance')
                     ->label('Saldo Awal')
-                    ->money('IDR', locale: 'id_ID')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->sortable(),
                 TextColumn::make('expected_balance')
                     ->label('Perkiraan')
-                    ->money('IDR', locale: 'id_ID')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('actual_balance')
                     ->label('Aktual')
-                    ->money('IDR', locale: 'id_ID')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('difference_amount')

@@ -36,9 +36,9 @@ class ViewPosSession extends ViewRecord
             Section::make('Ringkasan Keuangan')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('opening_balance')->label('Saldo Awal')->money('IDR', locale: 'id_ID'),
-                    TextEntry::make('expected_balance')->label('Perkiraan Saldo')->money('IDR', locale: 'id_ID')->placeholder('—'),
-                    TextEntry::make('actual_balance')->label('Saldo Aktual')->money('IDR', locale: 'id_ID')->placeholder('—'),
+                    TextEntry::make('opening_balance')->label('Saldo Awal')->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—'),
+                    TextEntry::make('expected_balance')->label('Perkiraan Saldo')->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')->placeholder('—'),
+                    TextEntry::make('actual_balance')->label('Saldo Aktual')->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')->placeholder('—'),
                     TextEntry::make('difference_amount')
                         ->label('Selisih')
                         ->formatStateUsing(
