@@ -23,11 +23,10 @@ class CashierResource extends Resource
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::ComputerDesktop;
 
     protected static string|UnitEnum|null $navigationGroup = 'Point of Sale';
-
-    protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Terminal Kasir';
     protected static ?string $modelLabel = 'Terminal Kasir';
     protected static ?string $pluralModelLabel = 'Terminal Kasir';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 

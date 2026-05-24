@@ -24,9 +24,9 @@ class PaymentMethodResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Point of Sale';
 
-    protected static ?int    $navigationSort  = 3;
     protected static ?string $navigationLabel = 'Metode Pembayaran';
     protected static ?string $slug            = 'payment-methods';
+    protected static ?int    $navigationSort  = 5;
 
     public static function form(Schema $schema): Schema
     {

@@ -22,11 +22,10 @@ class PosSessionResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Point of Sale';
 
-    protected static ?int $navigationSort = 2;
-
     protected static ?string $navigationLabel = 'Riwayat Sesi';
 
     protected static ?string $modelLabel = 'POS Session';
+    protected static ?int $navigationSort = 3;
 
     public static function table(Table $table): Table
     {
