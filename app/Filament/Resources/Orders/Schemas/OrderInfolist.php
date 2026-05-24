@@ -25,7 +25,7 @@ class OrderInfolist
                         Group::make()
                             ->schema([
                                 TextEntry::make('order_date')
-                                    ->dateTime()->columnSpan(1),
+                                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')->columnSpan(1),
                                 TextEntry::make('status')
                                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
                                     ->badge()

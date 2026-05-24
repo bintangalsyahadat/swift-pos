@@ -29,8 +29,8 @@ class ViewPosSession extends ViewRecord
                             default  => 'secondary',
                         }),
                     TextEntry::make('user.name')->label('Kasir'),
-                    TextEntry::make('opened_at')->label('Dibuka Pada')->dateTime('d M Y, H:i'),
-                    TextEntry::make('closed_at')->label('Ditutup Pada')->dateTime('d M Y, H:i')->placeholder('Masih buka'),
+                    TextEntry::make('opened_at')->label('Dibuka Pada')->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—'),
+                    TextEntry::make('closed_at')->label('Ditutup Pada')->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')->placeholder('Masih buka'),
                 ]),
 
             Section::make('Ringkasan Keuangan')

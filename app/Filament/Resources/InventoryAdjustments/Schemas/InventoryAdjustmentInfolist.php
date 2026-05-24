@@ -23,7 +23,7 @@ class InventoryAdjustmentInfolist
                             ->formatStateUsing(fn(string $state) => ucfirst($state)),
                         TextEntry::make('user.name')->label('Dibuat Oleh'),
                         TextEntry::make('notes')->label('Catatan')->columnSpanFull()->placeholder('-'),
-                        TextEntry::make('created_at')->label('Tanggal')->dateTime('d M Y, H:i'),
+                        TextEntry::make('created_at')->label('Tanggal')->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—'),
                     ])->columnSpanFull(),
             ]);
     }

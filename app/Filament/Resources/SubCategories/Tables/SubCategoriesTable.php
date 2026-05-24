@@ -35,12 +35,12 @@ class SubCategoriesTable
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

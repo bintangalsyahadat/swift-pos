@@ -49,7 +49,7 @@ class StockMovesTable
                     ->limit(40),
                 TextColumn::make('created_at')
                     ->label('Tanggal')
-                    ->dateTime('d M Y, H:i')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable(),
             ])
             ->filters([

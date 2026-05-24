@@ -35,7 +35,7 @@ class OrdersTable
                     ->placeholder('—'),
                 TextColumn::make('order_date')
                     ->label('Tanggal Pesanan')
-                    ->date()
+                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y') : '—')
                     ->sortable(),
                 TextColumn::make('total_price')
                     ->label('Total Harga')
@@ -81,12 +81,12 @@ class OrdersTable
                     }),
                 TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -106,6 +106,7 @@ class OrdersTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

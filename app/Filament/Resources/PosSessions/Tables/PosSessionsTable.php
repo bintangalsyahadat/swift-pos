@@ -30,11 +30,11 @@ class PosSessionsTable
                     ->sortable(),
                 TextColumn::make('opened_at')
                     ->label('Dibuka')
-                    ->dateTime('d M Y, H:i')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->sortable(),
                 TextColumn::make('closed_at')
                     ->label('Ditutup')
-                    ->dateTime('d M Y, H:i')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->placeholder('—')
                     ->sortable(),
                 TextColumn::make('opening_balance')

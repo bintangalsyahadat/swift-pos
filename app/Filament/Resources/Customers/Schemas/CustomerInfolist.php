@@ -23,11 +23,11 @@ class CustomerInfolist
                     ->columnSpanFull(),
                 TextEntry::make('created_at')
                     ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->dateTime()
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
                     ->placeholder('-'),
             ]);
     }
