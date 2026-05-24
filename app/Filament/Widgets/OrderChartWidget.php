@@ -3,11 +3,13 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
 class OrderChartWidget extends ChartWidget
 {
+    use HasWidgetShield;
     protected static ?int $sort = 2;
 
     protected ?string $heading = 'Pesanan per Hari';

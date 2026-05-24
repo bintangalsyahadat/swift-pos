@@ -4,10 +4,12 @@ namespace App\Filament\Widgets;
 
 use App\Models\Order;
 use App\Models\PaymentMethod;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 
 class PaymentMethodChartWidget extends ChartWidget
 {
+    use HasWidgetShield;
     protected static ?int $sort = 3;
 
     protected ?string $heading = 'Metode Pembayaran';

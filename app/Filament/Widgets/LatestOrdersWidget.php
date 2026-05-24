@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -11,6 +12,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestOrdersWidget extends BaseWidget
 {
+    use HasWidgetShield;
     protected static ?int $sort = 5;
 
     protected static ?string $heading = 'Pesanan Terbaru';

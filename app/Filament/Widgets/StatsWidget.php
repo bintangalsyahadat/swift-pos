@@ -4,12 +4,14 @@ namespace App\Filament\Widgets;
 
 use App\Models\Order;
 use App\Models\OrderDetail;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsWidget extends StatsOverviewWidget
 {
+    use HasWidgetShield;
     protected static ?int $sort = 1;
 
     protected function getStats(): array
