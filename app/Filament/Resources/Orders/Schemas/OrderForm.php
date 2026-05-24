@@ -6,7 +6,6 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Cashier;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -39,6 +38,7 @@ class OrderForm
                                     ->label('Pelanggan')
                                     ->required()
                                     ->relationship('customer', 'name')
+                                    ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function (callable $set, ?string $state) {
                                         if ($state) {
@@ -55,7 +55,8 @@ class OrderForm
                                             ->label('Nama')
                                             ->required(),
                                         TextInput::make('phone')
-                                            ->label('Telepon'),
+                                            ->label('Telepon')
+                                            ->required(),
                                         TextInput::make('email')
                                             ->label('Alamat Email')
                                             ->email(),
@@ -175,94 +176,91 @@ class OrderForm
 
                     ])->columnSpan(2),
 
-                Section::make()
-                    ->description('Informasi Pembayaran')
+                Group::make()
                     ->schema([
-                        Select::make('cashier_id')
-                            ->label('Kasir')
-                            ->relationship('cashier', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
-                            ->searchable()
-                            ->nullable()
-                            ->columnSpanFull()
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        TextEntry::make('status')
-                            ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                            ->badge()
-                            ->color(fn($state) => match ($state) {
-                                'new' => 'info',
-                                'processing' => 'warning',
-                                'completed' => 'success',
-                                'cancelled' => 'danger',
-                                default => 'secondary',
-                            }),
-                        TextInput::make('total_price')
-                            ->label('Total Harga')
-                            ->required()
-                            ->numeric()
-                            ->readOnly()
-                            ->prefix(\App\Models\Setting::currencySymbol())
-                            ->default(0)
-                            ->columnSpanFull()
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        TextInput::make('discount')
-                            ->label('Diskon')
-                            ->required()
-                            ->numeric()
-                            ->default(0)
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                $discount = floatval($state) ?? 0;
-                                $total_price = $get('total_price') ?? 0;
-                                $discount_amount = $total_price * ($discount / 100);
-                                $set('discount_amount', $discount_amount);
-                                $set('total_payment', $total_price - ($state ?? 0));
-                            })
-                            ->suffix('%')
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->columnSpan(2)
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        TextInput::make('discount_amount')
-                            ->label('Jumlah Diskon')
-                            ->required()
-                            ->numeric()
-                            ->readOnly()
-                            ->prefix(\App\Models\Setting::currencySymbol())
-                            ->columnSpan(2)
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        TextInput::make('total_payment')
-                            ->label('Total Pembayaran')
-                            ->required()
-                            ->numeric()
-                            ->readOnly()
-                            ->default(0)
-                            ->prefix(\App\Models\Setting::currencySymbol())
-                            ->columnSpanFull()
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        Select::make('payment_method')
-                            ->label('Metode Pembayaran')
-                            ->required()
-                            ->options([
-                                'cash' => 'Tunai',
-                                'credit' => 'Kartu Kredit',
-                                'debit' => 'Kartu Debit',
-                                'qris' => 'QRIS',
-                            ])
-                            ->default('cash')
-                            ->columnSpan(2)
-                            ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
-                        TextEntry::make('payment_status')
-                            ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                            ->badge()
-                            ->color(fn($state) => match ($state) {
-                                'unpaid' => 'info',
-                                'paid' => 'success',
-                                'failed' => 'danger',
-                                default => 'secondary',
-                            })
-                            ->label('Status Pembayaran')
-                            ->columnSpan(2),
-                    ])->columnSpan(1)->columns(4),
+                        Section::make()
+                            ->description('Informasi Pesanan')
+                            ->schema([
+                                Select::make('cashier_id')
+                                    ->label('Kasir')
+                                    ->relationship('cashier', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
+                                    ->searchable()
+                                    ->nullable()
+                                    ->columnSpanFull()
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                                TextEntry::make('status')
+                                    ->formatStateUsing(fn(string $state): string => ucfirst($state))
+                                    ->badge()
+                                    ->color(fn($state) => match ($state) {
+                                        'new' => 'info',
+                                        'processing' => 'warning',
+                                        'completed' => 'success',
+                                        'cancelled' => 'danger',
+                                        default => 'secondary',
+                                    })
+                                    ->hidden(fn(Get $get) => empty($get('status'))),
+                            ]),
+                        Section::make()
+                            ->description('Informasi Pembayaran')
+                            ->schema([
+                                TextInput::make('total_price')
+                                    ->label('Total Harga')
+                                    ->required()
+                                    ->numeric()
+                                    ->readOnly()
+                                    ->prefix(\App\Models\Setting::currencySymbol())
+                                    ->default(0)
+                                    ->columnSpanFull()
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                                TextInput::make('discount')
+                                    ->label('Diskon')
+                                    ->required()
+                                    ->numeric()
+                                    ->default(0)
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        $discount = floatval($state) ?? 0;
+                                        $total_price = $get('total_price') ?? 0;
+                                        $discount_amount = $total_price * ($discount / 100);
+                                        $set('discount_amount', $discount_amount);
+                                        $set('total_payment', $total_price - ($state ?? 0));
+                                    })
+                                    ->suffix('%')
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->columnSpan(2)
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                                TextInput::make('discount_amount')
+                                    ->label('Jumlah Diskon')
+                                    ->required()
+                                    ->numeric()
+                                    ->readOnly()
+                                    ->prefix(\App\Models\Setting::currencySymbol())
+                                    ->columnSpan(2)
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                                TextInput::make('total_payment')
+                                    ->label('Total Pembayaran')
+                                    ->required()
+                                    ->numeric()
+                                    ->readOnly()
+                                    ->default(0)
+                                    ->prefix(\App\Models\Setting::currencySymbol())
+                                    ->columnSpanFull()
+                                    ->disabled(fn(Get $get) => in_array($get('status'), ['completed', 'cancelled'])),
+                                TextEntry::make('payment_status')
+                                    ->formatStateUsing(fn(string $state): string => ucfirst($state))
+                                    ->badge()
+                                    ->color(fn($state) => match ($state) {
+                                        'unpaid' => 'info',
+                                        'paid' => 'success',
+                                        'failed' => 'danger',
+                                        default => 'secondary',
+                                    })
+                                    ->label('Status Pembayaran')
+                                    ->columnSpan(2)
+                                    ->hidden(fn(Get $get) => empty($get('payment_status'))),
+                            ])->columnSpan(1)->columns(4),
+                    ])
             ])->columns(3);
     }
 }

@@ -15,8 +15,10 @@ class OrderExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
+            ExportColumn::make('order_number')
+                ->label('No. Pesanan'),
+            ExportColumn::make('cashier_id')
+                ->label('ID Kasir'),
             ExportColumn::make('customer_id')
                 ->label('ID Pelanggan'),
             ExportColumn::make('order_date')
@@ -33,6 +35,10 @@ class OrderExporter extends Exporter
                 ->label('Metode Pembayaran'),
             ExportColumn::make('payment_status')
                 ->label('Status Pembayaran'),
+            ExportColumn::make('cash_paid')
+                ->label('Uang Diterima'),
+            ExportColumn::make('change_amount')
+                ->label('Kembalian'),
             ExportColumn::make('status')
                 ->label('Status'),
         ];

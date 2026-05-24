@@ -39,7 +39,7 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('total_price')
                     ->label('Total Harga')
-                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
+                    ->formatStateUsing(fn($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->sortable(),
                 TextColumn::make('discount')
                     ->label('Diskon')
@@ -47,14 +47,15 @@ class OrdersTable
                     ->toggleable(),
                 TextColumn::make('discount_amount')
                     ->label('Jumlah Diskon')
-                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
+                    ->formatStateUsing(fn($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
                     ->toggleable()
                     ->toggledHiddenByDefault(),
                 TextColumn::make('total_payment')
                     ->label('Total Pembayaran')
-                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—'),
+                    ->formatStateUsing(fn($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—'),
                 TextColumn::make('payment_method')
                     ->label('Metode Pembayaran')
+                    ->formatStateUsing(fn(string $state): string => \App\Models\PaymentMethod::where('code', $state)->value('name') ?? ucfirst($state))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('payment_status')
@@ -68,6 +69,14 @@ class OrdersTable
                         'failed' => 'danger',
                         default => 'secondary',
                     }),
+                TextColumn::make('cash_paid')
+                    ->label('Uang Diterima')
+                    ->formatStateUsing(fn($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('change_amount')
+                    ->label('Kembalian')
+                    ->formatStateUsing(fn($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
