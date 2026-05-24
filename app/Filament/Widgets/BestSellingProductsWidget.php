@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\OrderDetail;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,10 +23,33 @@ class BestSellingProductsWidget extends BaseWidget
             ->query(
                 OrderDetail::query()
                     ->selectRaw('product_id, SUM(quantity) as total_qty, SUM(subtotal) as total_revenue')
+                    ->whereHas(
+                        'order',
+                        fn(Builder $q) => $q
+                            ->where('status', 'completed')
+                            ->where('payment_status', 'paid')
+                    )
                     ->groupBy('product_id')
                     ->orderByDesc('total_qty')
                     ->limit(5)
             )
+            ->filters([
+                SelectFilter::make('period')
+                    ->label('Periode')
+                    ->options([
+                        '7'  => '7 Hari Terakhir',
+                        '30' => '30 Hari Terakhir',
+                        '90' => '90 Hari Terakhir',
+                    ])
+                    ->query(fn(Builder $query, array $data) => $query->when(
+                        $data['value'],
+                        fn($q, $v) => $q->whereHas(
+                            'order',
+                            fn($oq) => $oq
+                                ->where('created_at', '>=', now()->subDays((int) $v)->startOfDay())
+                        )
+                    )),
+            ])
             ->columns([
                 TextColumn::make('product.name')
                     ->label('Produk')

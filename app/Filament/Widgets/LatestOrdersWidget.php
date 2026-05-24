@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -23,11 +24,14 @@ class LatestOrdersWidget extends BaseWidget
                 Order::query()
                     ->with('customer')
                     ->latest()
+                    ->limit(5)
             )
             ->columns([
-                TextColumn::make('id')
-                    ->label('#')
-                    ->sortable(),
+                TextColumn::make('order_number')
+                    ->label('No. Pesanan')
+                    ->searchable()
+                    ->sortable()
+                ->copyable(),
                 TextColumn::make('customer.name')
                     ->label('Pelanggan')
                     ->searchable(),
@@ -48,6 +52,13 @@ class LatestOrdersWidget extends BaseWidget
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
             ])
-            ->paginated(false);
+            ->paginated(false)
+            ->headerActions([
+                Action::make('lihat_semua')
+                    ->label('Lihat Semua Pesanan')
+                    ->icon('heroicon-o-arrow-right')
+                    ->url(fn() => \App\Filament\Resources\Orders\OrderResource::getUrl('index'))
+                    ->color('primary'),
+            ]);
     }
 }
