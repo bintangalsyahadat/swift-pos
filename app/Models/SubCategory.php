@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubCategory extends Model
 {
+    use \App\Models\Concerns\HasApiId;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
+        'api_id',
         'category_id',
         'name',
         'description',

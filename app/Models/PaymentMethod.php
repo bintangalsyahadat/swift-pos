@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentMethod extends Model
 {
+    use \App\Models\Concerns\HasApiId;
+
     protected $fillable = [
+        'api_id',
         'name',
         'code',
         'description',

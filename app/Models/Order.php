@@ -34,6 +34,7 @@ class Order extends Model
         'pos_session_id',
         'payment_method_id',
         'order_number',
+        'pos_reference',
         'order_date',
         'total_price',
         'status',

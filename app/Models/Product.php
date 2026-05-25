@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use \App\Models\Concerns\HasApiId;
+
     protected $fillable = [
+        'api_id',
         'name',
         'description',
         'price',

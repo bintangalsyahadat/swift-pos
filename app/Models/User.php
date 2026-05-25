@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 use Andreia\FilamentUiSwitcher\Models\Traits\HasUiPreferences;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -17,7 +18,7 @@ use Filament\Panel;
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasUiPreferences, HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasUiPreferences, HasRoles;
 
     /**
      * The attributes that are mass assignable.
