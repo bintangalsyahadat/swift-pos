@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+        
         // Paksa semua request /api/* untuk selalu expect JSON response.
         // Ini mencegah redirect ke halaman HTML saat tidak ada header Accept: application/json.
         $middleware->api(prepend: [

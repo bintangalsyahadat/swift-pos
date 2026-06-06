@@ -45,10 +45,20 @@ class Order extends Model
         'change_amount',
         'payment_method',
         'payment_status',
+        // Xendit
+        'xendit_invoice_id',
+        'xendit_external_id',
+        'xendit_qr_string',
+        'xendit_va_number',
+        'xendit_va_bank',
+        'xendit_checkout_url',
+        'xendit_payment_code',
+        'xendit_expires_at',
     ];
 
     protected $casts = [
-        'order_date' => 'datetime',
+        'order_date'       => 'datetime',
+        'xendit_expires_at' => 'datetime',
     ];
 
     protected static function boot(): void
@@ -76,8 +86,30 @@ class Order extends Model
                     ]);
                 });
             } elseif ($newStatus === 'completed') {
-                StockMove::whereHas('orderDetail', fn($q) => $q->where('order_id', $order->id))
-                    ->update(['state' => 'done']);
+                $hasExisting = StockMove::whereHas(
+                    'orderDetail',
+                    fn($q) => $q->where('order_id', $order->id)
+                )->exists();
+
+                if ($hasExisting) {
+                    // Alur normal: draft → done
+                    StockMove::whereHas('orderDetail', fn($q) => $q->where('order_id', $order->id))
+                        ->update(['state' => 'done']);
+                } else {
+                    // Alur Xendit: langsung new → completed (lewati processing)
+                    // user_id nullable — webhook tidak punya Auth::id()
+                    $order->orderDetails()->with('product')->get()->each(function ($detail) use ($order, $userId) {
+                        StockMove::create([
+                            'product_id'      => $detail->product_id,
+                            'user_id'         => $userId ?: null,
+                            'quantity'        => $detail->quantity,
+                            'type'            => 'out',
+                            'order_detail_id' => $detail->id,
+                            'reference'       => $order->order_number,
+                            'state'           => 'done',
+                        ]);
+                    });
+                }
             } elseif ($newStatus === 'cancelled') {
                 StockMove::whereHas('orderDetail', fn($q) => $q->where('order_id', $order->id))
                     ->update(['state' => 'cancelled']);

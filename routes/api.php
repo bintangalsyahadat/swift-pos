@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\PosApiController;
+use App\Http\Controllers\Api\XenditWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 // ── Public ──────────────────────────────────────────────────────────────────
 Route::post('/login', [PosApiController::class, 'login']);
+
+// ── Xendit Webhook (public, tidak perlu auth) ─────────────────────────────
+// Daftarkan URL ini di Xendit Dashboard → Webhooks
+// URL: {your-domain}/api/webhooks/xendit
+Route::post('/webhooks/xendit', [XenditWebhookController::class, 'handle']);
 
 // ── Protected (Sanctum) ─────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {

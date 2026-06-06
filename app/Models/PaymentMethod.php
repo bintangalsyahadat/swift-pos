@@ -71,13 +71,12 @@ class PaymentMethod extends Model
     public function getTypeLabelAttribute(): string
     {
         return match ($this->type) {
-            'cash'             => 'Cash',
-            'card'             => 'Credit / Debit Card',
-            'qr_code'          => 'QR Code',
-            'virtual_account'  => 'Virtual Account',
-            'ewallet'          => 'E-Wallet',
-            'over_the_counter' => 'Over the Counter',
-            default            => ucfirst($this->type),
+            'cash'            => 'Cash',
+            'card'            => 'Credit / Debit Card',
+            'qr_code'         => 'QR Code',
+            'virtual_account' => 'Virtual Account',
+            'ewallet'         => 'E-Wallet',
+            default           => ucfirst($this->type),
         };
     }
 }

@@ -729,6 +729,194 @@
     </div>
     @endif
 
+    {{-- ══════════════════════════════════════════ XENDIT PAYMENT MODAL --}}
+    @if($showXenditModal)
+    <div class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+
+        @if($xenditPaymentFailed)
+        {{-- ── Failure state — tidak ada wire:poll ────────────────────────────── --}}
+        <div class="w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+                <h2 class="font-bold text-gray-900 dark:text-white text-base">Pembayaran Gagal</h2>
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 px-2.5 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                    Gagal
+                </span>
+            </div>
+            <div class="p-5 flex flex-col items-center gap-4">
+                {{-- Icon --}}
+                <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                {{-- Failure note --}}
+                <div class="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-xl px-4 py-3">
+                    <p class="text-xs font-semibold text-red-600 dark:text-red-400 mb-1 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                        </svg>
+                        Keterangan
+                    </p>
+                    <p class="text-sm text-red-700 dark:text-red-300">{{ $xenditFailureNote }}</p>
+                </div>
+                {{-- Total (dicoret) --}}
+                <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3 text-center">
+                    <p class="text-xs text-gray-400 mb-0.5">Total Tagihan (Dibatalkan)</p>
+                    <p class="text-xl font-bold text-gray-400 line-through">
+                        {{ $this->currencySymbol }} {{ number_format($this->xenditOrder?->total_payment ?? 0, 0, ',', '.') }}
+                    </p>
+                </div>
+                <button wire:click="closeXenditModal"
+                    class="w-full py-2.5 rounded-xl font-semibold text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+
+        @else
+        {{-- ── Waiting state — dengan wire:poll ────────────────────────────────── --}}
+        <div class="w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+            wire:poll.5000ms="checkXenditStatus">
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                    <h2 class="font-bold text-gray-900 dark:text-white text-base">Menunggu Pembayaran</h2>
+                    @if($xenditExpiresAt)
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        Kedaluwarsa: {{ \Carbon\Carbon::parse($xenditExpiresAt)->locale('id')->translatedFormat('d M Y, H:i') }}
+                    </p>
+                    @endif
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 px-2.5 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                    Menunggu
+                </span>
+            </div>
+
+            <div class="p-5 flex flex-col items-center gap-4">
+
+                {{-- QR Code --}}
+                @if($xenditType === 'qr_code' && $xenditQrString)
+                <div class="flex flex-col items-center gap-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Scan QRIS untuk membayar</p>
+                    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                        <img
+                            src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($xenditQrString) }}"
+                            alt="QRIS Code"
+                            class="w-[200px] h-[200px]" />
+                    </div>
+                    <p class="text-xs text-gray-400 text-center max-w-[220px] break-all font-mono">{{ Str::limit($xenditQrString, 40) }}</p>
+                </div>
+                @endif
+
+                {{-- Virtual Account --}}
+                @if($xenditType === 'virtual_account' && $xenditVaNumber)
+                <div class="w-full flex flex-col gap-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 text-center">Transfer ke Virtual Account</p>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
+                        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">{{ $xenditVaBank }}</p>
+                        <p class="text-2xl font-bold tracking-widest text-gray-900 dark:text-white">{{ $xenditVaNumber }}</p>
+                    </div>
+                    <p class="text-xs text-gray-400 text-center">Salin nomor VA di atas, transfer tepat sesuai nominal tagihan.</p>
+                </div>
+                @endif
+
+                {{-- E-Wallet / Checkout URL --}}
+                @if($xenditType === 'ewallet' && ($xenditCheckoutUrl || $xenditPaymentCode))
+                <div class="w-full flex flex-col gap-3">
+                    @if($xenditCheckoutUrl)
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 text-center">Link Pembayaran</p>
+                    <a href="{{ $xenditCheckoutUrl }}" target="_blank"
+                        class="w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                        Buka Halaman Pembayaran ↗
+                    </a>
+                    @endif
+                    @if($xenditPaymentCode)
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
+                        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Kode Pembayaran</p>
+                        <p class="text-2xl font-bold tracking-widest text-gray-900 dark:text-white">{{ $xenditPaymentCode }}</p>
+                    </div>
+                    @endif
+                </div>
+                @endif
+
+                {{-- Total --}}
+                <div class="w-full bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3 text-center">
+                    <p class="text-xs text-primary-500 dark:text-primary-300 mb-0.5">Total Tagihan</p>
+                    <p class="text-xl font-bold text-primary-700 dark:text-primary-300">
+                        {{ $this->currencySymbol }} {{ number_format($this->xenditOrder?->total_payment ?? 0, 0, ',', '.') }}
+                    </p>
+                </div>
+
+                {{-- Dev Mode: Simulate Payment button (sandbox, non-ewallet) --}}
+                @if(app()->environment('local') && $xenditType !== 'ewallet')
+                @php
+                $devChannelCode = $this->xenditOrder?->paymentMethod?->xendit_channel_code;
+                $canSimulate = $xenditType !== 'qr_code' || $devChannelCode === 'ID_DANA';
+                @endphp
+                <div class="w-full bg-yellow-50 dark:bg-yellow-900/20 border border-dashed border-yellow-300 dark:border-yellow-600 rounded-xl px-4 py-3">
+                    <p class="text-xs font-semibold text-yellow-700 dark:text-yellow-400 mb-2 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                        Dev Mode — Xendit Sandbox
+                        @if($devChannelCode)
+                        <span class="ml-auto font-mono text-yellow-500">{{ $devChannelCode }}</span>
+                        @endif
+                    </p>
+
+                    @if($canSimulate)
+                    <button wire:click="simulateXenditPayment"
+                        wire:loading.attr="disabled"
+                        wire:target="simulateXenditPayment"
+                        class="w-full py-2 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-600 dark:hover:bg-yellow-500 text-yellow-900 dark:text-white transition flex items-center justify-center gap-1.5 disabled:opacity-60">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            wire:loading.class="animate-spin" wire:target="simulateXenditPayment">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span wire:loading.remove wire:target="simulateXenditPayment">Simulate Payment</span>
+                        <span wire:loading wire:target="simulateXenditPayment">Mengirim…</span>
+                    </button>
+                    @else
+                    {{-- QR Code channel bukan ID_DANA: simulate tidak didukung --}}
+                    <div class="w-full rounded-lg bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 px-3 py-2">
+                        <p class="text-xs text-orange-700 dark:text-orange-300 font-semibold mb-0.5">⚠ Simulate tidak didukung untuk {{ $devChannelCode }}</p>
+                        <p class="text-xs text-orange-600 dark:text-orange-400">Xendit Sandbox hanya mendukung simulate QR Code untuk channel <span class="font-mono font-bold">ID_DANA</span>. Ubah channel code payment method ini ke ID_DANA untuk testing.</p>
+                    </div>
+                    @endif
+                </div>
+                @endif
+
+                {{-- Actions --}}
+                <div class="w-full flex gap-2">
+                    <button wire:click="checkXenditStatus"
+                        wire:loading.attr="disabled"
+                        class="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-green-600 hover:bg-green-700 text-white transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" wire:loading.class="animate-spin" wire:target="checkXenditStatus">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span wire:loading.remove wire:target="checkXenditStatus">Cek Status</span>
+                        <span wire:loading wire:target="checkXenditStatus">Memeriksa…</span>
+                    </button>
+                    <button wire:click="closeXenditModal"
+                        class="px-4 py-2.5 rounded-xl font-medium text-sm text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        Tutup
+                    </button>
+                </div>
+
+                <p class="text-xs text-gray-400 text-center -mt-1">
+                    Status diperbarui otomatis setiap 5 detik
+                </p>
+            </div>
+        </div>
+        @endif
+
+    </div>
+    @endif
+
 </div>
 
 @script

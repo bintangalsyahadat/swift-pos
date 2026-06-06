@@ -24,7 +24,6 @@ return new class extends Migration
                 'qr_code',
                 'virtual_account',
                 'ewallet',
-                'over_the_counter',
             ])->default('cash');
 
             // Xendit integration (nullable = offline / manual)

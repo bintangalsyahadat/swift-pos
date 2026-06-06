@@ -46,7 +46,7 @@
                     </div>
 
                     <!-- <div> -->
-                        <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                    <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Mata Uang <span class="text-red-500">*</span>
                         </label>
                         <select wire:model="general_currency"
@@ -56,11 +56,11 @@
                             <option value="SGD">SGD — Singapore Dollar</option>
                             <option value="MYR">MYR — Malaysian Ringgit</option>
                         </select> -->
-                        @error('general_currency') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    @error('general_currency') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     <!-- </div> -->
 
                     <!-- <div> -->
-                        <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
+                    <!-- <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Zona Waktu <span class="text-red-500">*</span>
                         </label>
                         <select wire:model="general_timezone"
@@ -71,7 +71,7 @@
                             <option value="Asia/Singapore">Asia/Singapore (SGT, UTC+8)</option>
                             <option value="UTC">UTC</option>
                         </select> -->
-                        @error('general_timezone') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    @error('general_timezone') //<p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     <!-- </div> -->
 
                     <div class="sm:col-span-2">
@@ -183,11 +183,47 @@
                         <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Secret Key <span class="text-red-500">*</span>
                         </label>
-                        <input type="password" wire:model="xendit_secret_key"
-                            placeholder="{{ $xendit_environment === 'sandbox' ? 'xnd_development_...' : 'xnd_production_...' }}"
-                            autocomplete="new-password"
-                            class="fi-input block w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
+                        <div class="flex items-center gap-2">
+                            <input type="password" wire:model="xendit_secret_key"
+                                placeholder="{{ $xendit_environment === 'sandbox' ? 'xnd_development_...' : 'xnd_production_...' }}"
+                                autocomplete="new-password"
+                                class="fi-input block flex-1 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
+                            <button type="button"
+                                wire:click="testXenditConnection"
+                                wire:loading.attr="disabled"
+                                wire:target="testXenditConnection"
+                                class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition disabled:opacity-60">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-3.5 h-3.5"
+                                    wire:loading.class="animate-spin"
+                                    wire:target="testXenditConnection"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span wire:loading.remove wire:target="testXenditConnection">Test</span>
+                                <span wire:loading wire:target="testXenditConnection">Testing…</span>
+                            </button>
+                        </div>
+
+                        {{-- Test result badge --}}
+                        @if($xendit_test_success === true)
+                        <div class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            {{ $xendit_test_message }}
+                        </div>
+                        @elseif($xendit_test_success === false)
+                        <div class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            {{ $xendit_test_message }}
+                        </div>
+                        @else
                         <p class="mt-1 text-xs text-gray-500">Digunakan untuk panggilan API sisi server. Jaga kerahasiaannya.</p>
+                        @endif
+
                         @error('xendit_secret_key') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
@@ -204,13 +240,49 @@
 
                     <div class="sm:col-span-2">
                         <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
-                            Webhook Token
-                            <span class="text-xs font-normal text-gray-500 ml-1">(opsional)</span>
+                            Webhook Token <span class="text-red-500">*</span>
+                            <span class="text-xs font-normal text-gray-500 ml-1">(wajib untuk otomatisasi status pembayaran)</span>
                         </label>
-                        <input type="text" wire:model="xendit_webhook_token"
-                            placeholder="Set in Xendit Dashboard → Webhooks → Verification Token"
-                            class="fi-input block w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
-                        <p class="mt-1 text-xs text-gray-500">Digunakan untuk memverifikasi permintaan webhook yang masuk dari Xendit.</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" wire:model="xendit_webhook_token"
+                                placeholder="Salin dari Xendit Dashboard → Settings → Configuration → Webhooks → Verification Token"
+                                class="fi-input block flex-1 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-sm text-gray-950 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
+                            <button type="button"
+                                wire:click="testWebhookEndpoint"
+                                wire:loading.attr="disabled"
+                                wire:target="testWebhookEndpoint"
+                                class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition disabled:opacity-60">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-3.5 h-3.5"
+                                    wire:loading.class="animate-spin"
+                                    wire:target="testWebhookEndpoint"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <span wire:loading.remove wire:target="testWebhookEndpoint">Test</span>
+                                <span wire:loading wire:target="testWebhookEndpoint">Testing…</span>
+                            </button>
+                        </div>
+
+                        {{-- Webhook test result --}}
+                        @if($xendit_webhook_test_success === true)
+                        <div class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            {{ $xendit_webhook_test_message }}
+                        </div>
+                        @elseif($xendit_webhook_test_success === false)
+                        <div class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            {{ $xendit_webhook_test_message }}
+                        </div>
+                        @else
+                        <p class="mt-1 text-xs text-gray-500">Token ini memverifikasi bahwa callback benar-benar dari Xendit, sehingga status pembayaran dapat diperbarui otomatis. Salin nilainya dari Xendit Dashboard → <strong>Verification Token</strong>.</p>
+                        @endif
+
                         @error('xendit_webhook_token') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
@@ -218,17 +290,95 @@
                     <div class="sm:col-span-2">
                         <label class="fi-fo-field-wrp-label block text-sm font-medium leading-6 text-gray-950 dark:text-white mb-1">
                             Webhook URL
-                            <span class="text-xs font-normal text-gray-500 ml-1">(daftarkan ini di Xendit Dashboard)</span>
+                            <span class="text-xs font-normal text-gray-500 ml-1">(salin & daftarkan di Xendit Dashboard)</span>
                         </label>
                         <div class="flex items-center gap-2">
                             <code class="flex-1 block rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 font-mono">
                                 {{ url('/api/webhooks/xendit') }}
                             </code>
                             <button type="button"
-                                onclick="navigator.clipboard.writeText('{{ url('/api/webhooks/xendit') }}')"
+                                onclick="navigator.clipboard.writeText('{{ url('/api/webhooks/xendit') }}'); this.textContent='Tersalin!'; setTimeout(() => this.textContent='Copy', 2000)"
                                 class="shrink-0 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition">
                                 Copy
                             </button>
+                        </div>
+
+                        {{-- Panduan lokasi input di Xendit Dashboard --}}
+                        <div class="mt-3 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/20 p-4 space-y-3">
+                            <p class="text-xs font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Daftarkan URL di setiap lokasi berikut pada Xendit Dashboard:
+                            </p>
+
+                            <div class="space-y-2 text-xs text-blue-700 dark:text-blue-300">
+
+                                {{-- Verification Token --}}
+                                <div class="flex gap-2">
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">1</span>
+                                    <div>
+                                        <p class="font-semibold text-blue-900 dark:text-blue-200">Verification Token (Global)</p>
+                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
+                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
+                                            → isi kolom <strong>Verification Token</strong> dengan token yang sama di atas
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- QR Code --}}
+                                <div class="flex gap-2">
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">2</span>
+                                    <div>
+                                        <p class="font-semibold text-blue-900 dark:text-blue-200">QRIS / QR Code</p>
+                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
+                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
+                                            → bagian <strong>QR Code</strong> → isi <strong>Callback URL</strong>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Virtual Account --}}
+                                <div class="flex gap-2">
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">3</span>
+                                    <div>
+                                        <p class="font-semibold text-blue-900 dark:text-blue-200">Virtual Account</p>
+                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
+                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
+                                            → bagian <strong>Virtual Account</strong> → isi <strong>Callback URL</strong>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- E-Wallet --}}
+                                <div class="flex gap-2">
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">4</span>
+                                    <div>
+                                        <p class="font-semibold text-blue-900 dark:text-blue-200">E-Wallet (OVO, GoPay, ShopeePay, dll.)</p>
+                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
+                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
+                                            → bagian <strong>E-Wallet</strong> → isi <strong>Callback URL</strong>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Over The Counter --}}
+                                <div class="flex gap-2">
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">5</span>
+                                    <div>
+                                        <p class="font-semibold text-blue-900 dark:text-blue-200">Over The Counter (Alfamart / Indomaret)</p>
+                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
+                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
+                                            → bagian <strong>Over The Counter</strong> → isi <strong>Callback URL</strong>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <p class="text-[11px] text-blue-500 dark:text-blue-500 border-t border-blue-200 dark:border-blue-800 pt-2 mt-1">
+                                ⚡ Cukup daftarkan channel yang digunakan. Satu URL yang sama dipakai untuk semua channel.
+                            </p>
                         </div>
                     </div>
 

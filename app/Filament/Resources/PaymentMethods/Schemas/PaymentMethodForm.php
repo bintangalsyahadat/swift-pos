@@ -86,11 +86,10 @@ class PaymentMethodForm
                     Select::make('xendit_channel_type')
                         ->label('Tipe Channel Xendit')
                         ->options([
-                            'QR_CODE'          => 'QR_CODE',
-                            'VIRTUAL_ACCOUNT'  => 'VIRTUAL_ACCOUNT',
-                            'EWALLET'          => 'EWALLET',
-                            'OVER_THE_COUNTER' => 'OVER_THE_COUNTER',
-                            'CREDIT_CARD'      => 'CREDIT_CARD',
+                            'QR_CODE'         => 'QR_CODE',
+                            'VIRTUAL_ACCOUNT' => 'VIRTUAL_ACCOUNT',
+                            'EWALLET'         => 'EWALLET',
+                            'CREDIT_CARD'     => 'CREDIT_CARD',
                         ])
                         ->native(false)
                         ->live()
@@ -99,7 +98,7 @@ class PaymentMethodForm
                     Select::make('xendit_channel_code')
                         ->label('Xendit Channel Code')
                         ->options(fn(Get $get) => match ($get('xendit_channel_type')) {
-                            'QR_CODE'          => ['ID_QRIS' => 'ID_QRIS (QRIS)'],
+                            'QR_CODE'          => ['ID_DANA' => 'ID_DANA (QRIS)'],
                             'VIRTUAL_ACCOUNT'  => [
                                 'BCA'                => 'BCA',
                                 'BNI'                => 'BNI',
@@ -118,10 +117,6 @@ class PaymentMethodForm
                                 'ID_LINKAJA'   => 'LinkAja',
                                 'ID_ASTRAPAY'  => 'AstraPay',
                                 'ID_JENIUSPAY' => 'Jenius Pay',
-                            ],
-                            'OVER_THE_COUNTER' => [
-                                'ALFAMART'  => 'Alfamart',
-                                'INDOMARET' => 'Indomaret',
                             ],
                             default => [],
                         })

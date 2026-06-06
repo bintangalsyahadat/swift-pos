@@ -10,6 +10,7 @@ use App\Models\PaymentMethod;
 use App\Models\PosSession;
 use App\Models\Product;
 use App\Models\StockMove;
+use App\Services\XenditService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +64,19 @@ class PosTerminal extends Page
     // ─── Receipt modal ────────────────────────────────────────────────────────
     public bool $showReceiptModal = false;
     public ?int $receiptOrderId   = null;
+
+    // ─── Xendit payment modal ─────────────────────────────────────────────────
+    public bool    $showXenditModal     = false;
+    public ?int    $xenditOrderId       = null;
+    public string  $xenditType         = '';   // qr_code | virtual_account | ewallet
+    public string  $xenditQrString     = '';
+    public string  $xenditVaNumber     = '';
+    public string  $xenditVaBank       = '';
+    public string  $xenditCheckoutUrl  = '';
+    public string  $xenditPaymentCode  = '';
+    public ?string $xenditExpiresAt    = null;
+    public bool    $xenditPaymentFailed = false;
+    public string  $xenditFailureNote  = '';
 
     // ─── Customer picker modal ────────────────────────────────────────────────
     public bool   $showCustomerModal  = false;
@@ -503,6 +517,16 @@ class PosTerminal extends Page
             return;
         }
 
+        $pm       = PaymentMethod::find($this->paymentMethodId);
+        $isOnline = $pm?->is_online && \App\Models\Setting::getBool('xendit.enabled');
+
+        // ── Pembayaran Online via Xendit ──────────────────────────────────────
+        if ($isOnline) {
+            $this->payViaXendit($pm, $customerId);
+            return;
+        }
+
+        // ── Pembayaran Offline (tunai / kartu / QRIS statis) ──────────────────
         $isCash         = $this->isCashPayment;
         $cashPaid       = $isCash ? $this->cashPaid : null;
         $changeAmount   = $isCash ? $this->changeAmount : null;
@@ -570,6 +594,185 @@ class PosTerminal extends Page
         $this->receiptOrderId   = null;
     }
 
+    // ─── Xendit: buat pembayaran & tampilkan modal ────────────────────────────
+
+    private function payViaXendit(PaymentMethod $pm, int $customerId): void
+    {
+        $createdOrderId = null;
+
+        DB::transaction(function () use ($customerId, &$createdOrderId) {
+            $userId = Auth::id();
+
+            $order = Order::create([
+                'customer_id'       => $customerId,
+                'cashier_id'        => $this->cashier_id,
+                'pos_session_id'    => $this->sessionId,
+                'order_date'        => now(),
+                'total_price'       => $this->totalPrice,
+                'discount'          => $this->discount,
+                'discount_amount'   => $this->discountAmount,
+                'total_payment'     => $this->totalPayment,
+                'payment_method'    => PaymentMethod::find($this->paymentMethodId)?->code ?? 'online',
+                'payment_method_id' => $this->paymentMethodId,
+                'payment_status'    => 'unpaid',
+                'status'            => 'new',
+            ]);
+
+            foreach ($this->cart as $item) {
+                OrderDetail::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity'   => $item['qty'],
+                    'subtotal'   => $item['subtotal'],
+                ]);
+                // StockMove dibuat saat status berubah ke 'processing' / 'completed'
+            }
+
+            $createdOrderId = $order->id;
+        });
+
+        // Panggil Xendit API
+        try {
+            $order  = Order::with(['customer', 'paymentMethod'])->findOrFail($createdOrderId);
+            $xendit = app(XenditService::class);
+            $result = $xendit->createPayment($order, $pm);
+
+            // Simpan data Xendit ke order
+            $order->update([
+                'xendit_invoice_id'  => $result['invoice_id'] ?? null,
+                'xendit_external_id' => $result['external_id'] ?? null,
+                'xendit_qr_string'   => $result['qr_string'] ?? null,
+                'xendit_va_number'   => $result['va_number'] ?? null,
+                'xendit_va_bank'     => $result['va_bank'] ?? null,
+                'xendit_checkout_url' => $result['checkout_url'] ?? null,
+                'xendit_payment_code' => $result['payment_code'] ?? null,
+                'xendit_expires_at'  => isset($result['expires_at'])
+                    ? \Carbon\Carbon::parse($result['expires_at'])
+                    : null,
+            ]);
+
+            // Tampilkan Xendit payment modal
+            $this->xenditOrderId      = $order->id;
+            $this->xenditType         = $result['type'] ?? '';
+            $this->xenditQrString     = $result['qr_string'] ?? '';
+            $this->xenditVaNumber     = $result['va_number'] ?? '';
+            $this->xenditVaBank       = $result['va_bank'] ?? '';
+            $this->xenditCheckoutUrl  = $result['checkout_url'] ?? '';
+            $this->xenditPaymentCode  = $result['payment_code'] ?? '';
+            $this->xenditExpiresAt    = $result['expires_at'] ?? null;
+
+            // Reset state error dari transaksi sebelumnya
+            $this->xenditPaymentFailed = false;
+            $this->xenditFailureNote   = '';
+
+            $this->showCheckoutModal = false;
+            $this->showXenditModal   = true;
+            $this->clearCart();
+        } catch (\Throwable $e) {
+            // Batalkan order jika Xendit gagal
+            if ($createdOrderId) {
+                Order::find($createdOrderId)?->update(['status' => 'cancelled', 'payment_status' => 'failed']);
+            }
+
+            Notification::make()
+                ->title('Gagal membuat pembayaran Xendit')
+                ->body($e->getMessage())
+                ->danger()
+                ->persistent()
+                ->send();
+        }
+    }
+
+    public function checkXenditStatus(): void
+    {
+        if (! $this->xenditOrderId) {
+            return;
+        }
+
+        $order = Order::with('paymentMethod')->find($this->xenditOrderId);
+
+        if (! $order) {
+            return;
+        }
+
+        // Jika sudah lunas via webhook sebelumnya
+        if ($order->payment_status === 'paid') {
+            $this->xenditPaymentConfirmed($order);
+            return;
+        }
+
+        if ($order->payment_status === 'failed') {
+            $this->xenditPaymentFailed = true;
+            $this->xenditFailureNote   = 'Pembayaran gagal atau kedaluwarsa. Order ini telah otomatis dibatalkan.';
+            return;
+        }
+
+        // Poll ke Xendit API
+        $xendit = app(XenditService::class);
+        $status = $xendit->checkPaymentStatus($order);
+
+        if ($status === 'paid') {
+            $order->update(['payment_status' => 'paid', 'status' => 'completed']);
+            $this->xenditPaymentConfirmed($order);
+        } elseif ($status === 'failed') {
+            $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+            $this->xenditPaymentFailed = true;
+            $this->xenditFailureNote   = 'Pembayaran gagal atau kedaluwarsa. Order ini telah otomatis dibatalkan.';
+        }
+    }
+
+    private function xenditPaymentConfirmed(Order $order): void
+    {
+        $this->showXenditModal  = false;
+        $this->receiptOrderId   = $order->id;
+        $this->showReceiptModal = true;
+
+        Notification::make()
+            ->title('Pembayaran berhasil')
+            ->body("Pesanan #{$order->order_number} telah lunas.")
+            ->success()
+            ->send();
+
+        $this->dispatch('open-receipt');
+    }
+
+    public function closeXenditModal(): void
+    {
+        $this->showXenditModal     = false;
+        $this->xenditPaymentFailed = false;
+        $this->xenditFailureNote   = '';
+    }
+
+    /** Hanya untuk Sandbox / Dev: trigger simulate payment langsung dari modal. */
+    public function simulateXenditPayment(): void
+    {
+        if (! $this->xenditOrderId) return;
+
+        $order = Order::with('paymentMethod')->find($this->xenditOrderId);
+        if (! $order) return;
+
+        try {
+            app(XenditService::class)->simulatePayment($order);
+
+            Notification::make()
+                ->title('Simulate payment dikirim ✓')
+                ->body('Menunggu konfirmasi dari Xendit — status akan diperbarui otomatis.')
+                ->success()
+                ->duration(4000)
+                ->send();
+
+            // Auto-check status setelah 3 detik agar webhook sempat diterima
+            $this->js('setTimeout(() => $wire.checkXenditStatus(), 3000)');
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Gagal simulate payment')
+                ->body($e->getMessage())
+                ->danger()
+                ->persistent()
+                ->send();
+        }
+    }
+
     // ─── Computed: receipt order ───────────────────────────────────────────────
     #[Computed]
     public function receiptOrder(): ?Order
@@ -581,5 +784,13 @@ class PosTerminal extends Page
 
         return Order::with(['orderDetails.product', 'customer', 'paymentMethod'])
             ->find($id);
+    }
+
+    // Order yang sedang menunggu pembayaran Xendit (berbeda dengan receiptOrder)
+    #[Computed]
+    public function xenditOrder(): ?Order
+    {
+        $id = $this->xenditOrderId;
+        return $id ? Order::find($id) : null;
     }
 }
