@@ -50,9 +50,10 @@ class PaymentMethodResource extends Resource
     public static function typeOptions(): array
     {
         return [
-            'cash'    => 'Tunai',
-            'card'    => 'Kartu Kredit / Debit',
-            'qr_code' => 'QR Code',
+            'cash'            => 'Tunai',
+            'card'            => 'Kartu Kredit / Debit',
+            'qr_code'         => 'QR Code',
+            'virtual_account' => 'Virtual Account',
         ];
     }
 }

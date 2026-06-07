@@ -22,24 +22,26 @@ class XenditWebhookController extends Controller
         $raw = $request->all();
 
         // ── Ekstrak external_id & status sesuai struktur webhook Xendit ────────
-        // QR Code  : { "status": "COMPLETED", "qr_code": { "external_id": "..." } }
-        // VA       : { "status": "PAID",       "external_id": "..." }
-        // eWallet  : { "status": "SUCCEEDED",  "reference_id": "..." }
+        // QR Code  : { "event": "qr.payment", "status": "COMPLETED", "qr_code": { "external_id": "..." } }
+        // VA       : { "external_id": "...", "callback_virtual_account_id": "...", (TIDAK ada "status") }
         $event = $raw['event'] ?? '';
 
         $externalId = match (true) {
             // QR Code payment — external_id ada di dalam qr_code object
-            str_starts_with($event, 'qr.')         => $raw['qr_code']['external_id'] ?? null,
+            str_starts_with($event, 'qr.')  => $raw['qr_code']['external_id'] ?? null,
             // VA payment — external_id di root
-            str_starts_with($event, 'fva_')        => $raw['external_id'] ?? null,
+            str_starts_with($event, 'fva_') => $raw['external_id'] ?? null,
             // eWallet / generic
-            default                                => $raw['reference_id']
+            default                         => $raw['reference_id']
                 ?? $raw['external_id']
                 ?? $raw['qr_code']['external_id']
                 ?? null,
         };
 
-        $status = strtoupper($raw['status'] ?? '');
+        // VA payment notification dari Xendit TIDAK memiliki field "status".
+        // Keberadaan callback_virtual_account_id menandakan pembayaran VA berhasil diterima.
+        $isVaPayment = isset($raw['callback_virtual_account_id']);
+        $status      = $isVaPayment ? 'PAID' : strtoupper($raw['status'] ?? '');
 
         if (! $externalId) {
             return response()->json(['message' => 'ok']);

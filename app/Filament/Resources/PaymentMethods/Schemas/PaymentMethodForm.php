@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PaymentMethods\Schemas;
 
 use App\Models\Setting;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,9 +40,10 @@ class PaymentMethodForm
                         ->label('Tipe')
                         ->required()
                         ->options([
-                            'cash'    => 'Tunai',
-                            'card'    => 'Kartu Kredit / Debit',
-                            'qr_code' => 'QR Code',
+                            'cash'            => 'Tunai',
+                            'card'            => 'Kartu Kredit / Debit',
+                            'qr_code'         => 'QR Code',
+                            'virtual_account' => 'Virtual Account',
                         ])
                         ->native(false)
                         ->live()
@@ -74,7 +74,7 @@ class PaymentMethodForm
             Section::make('Integrasi Xendit')
                 ->description('Biarkan kosong untuk metode pembayaran offline/manual (mis. tunai, EDC).')
                 ->collapsed()
-                ->hidden(fn() => ! Setting::getBool('xendit.enabled'))
+                ->hidden(fn(Get $get) => ! Setting::getBool('xendit.enabled') || in_array($get('type'), ['cash', 'card']))
                 ->columns(2)
                 ->schema([
                     Toggle::make('is_online')
@@ -88,8 +88,6 @@ class PaymentMethodForm
                         ->options([
                             'QR_CODE'         => 'QR_CODE',
                             'VIRTUAL_ACCOUNT' => 'VIRTUAL_ACCOUNT',
-                            'EWALLET'         => 'EWALLET',
-                            'CREDIT_CARD'     => 'CREDIT_CARD',
                         ])
                         ->native(false)
                         ->live()
@@ -109,26 +107,11 @@ class PaymentMethodForm
                                 'BJB'                => 'BJB',
                                 'SAHABAT_SAMPOERNA'  => 'SAHABAT_SAMPOERNA',
                             ],
-                            'EWALLET' => [
-                                'ID_OVO'       => 'OVO',
-                                'ID_GOPAY'     => 'GoPay',
-                                'ID_SHOPEEPAY' => 'ShopeePay',
-                                'ID_DANA'      => 'DANA',
-                                'ID_LINKAJA'   => 'LinkAja',
-                                'ID_ASTRAPAY'  => 'AstraPay',
-                                'ID_JENIUSPAY' => 'Jenius Pay',
-                            ],
                             default => [],
                         })
                         ->native(false)
                         ->searchable()
                         ->visible(fn(Get $get) => $get('is_online') && filled($get('xendit_channel_type'))),
-
-                    KeyValue::make('xendit_channel_properties')
-                        ->label('Channel Properties (JSON)')
-                        ->helperText('Konfigurasi tambahan opsional yang diperlukan Xendit untuk channel tertentu (mis. mobile_number untuk e-wallet).')
-                        ->visible(fn(Get $get) => $get('is_online'))
-                        ->columnSpanFull(),
                 ]),
 
             Section::make('Biaya & Status')

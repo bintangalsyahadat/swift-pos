@@ -41,10 +41,11 @@ class PaymentMethodsTable
                 TextColumn::make('type')
                     ->label('Tipe')
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'cash'    => 'Tunai',
-                        'card'    => 'Kartu',
-                        'qr_code' => 'QR Code',
-                        default   => ucfirst($state),
+                        'cash'            => 'Tunai',
+                        'card'            => 'Kartu',
+                        'qr_code'         => 'QR Code',
+                        'virtual_account' => 'Virtual Account',
+                        default           => ucfirst($state),
                     })
                     ->sortable(),
 
@@ -92,9 +93,10 @@ class PaymentMethodsTable
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'cash'    => 'Tunai',
-                        'card'    => 'Kartu',
-                        'qr_code' => 'QR Code',
+                        'cash'            => 'Tunai',
+                        'card'            => 'Kartu',
+                        'qr_code'         => 'QR Code',
+                        'virtual_account' => 'Virtual Account',
                     ]),
 
                 TernaryFilter::make('is_active')

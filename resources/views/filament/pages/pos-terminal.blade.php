@@ -824,25 +824,6 @@
                 </div>
                 @endif
 
-                {{-- E-Wallet / Checkout URL --}}
-                @if($xenditType === 'ewallet' && ($xenditCheckoutUrl || $xenditPaymentCode))
-                <div class="w-full flex flex-col gap-3">
-                    @if($xenditCheckoutUrl)
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 text-center">Link Pembayaran</p>
-                    <a href="{{ $xenditCheckoutUrl }}" target="_blank"
-                        class="w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                        Buka Halaman Pembayaran ↗
-                    </a>
-                    @endif
-                    @if($xenditPaymentCode)
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
-                        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Kode Pembayaran</p>
-                        <p class="text-2xl font-bold tracking-widest text-gray-900 dark:text-white">{{ $xenditPaymentCode }}</p>
-                    </div>
-                    @endif
-                </div>
-                @endif
-
                 {{-- Total --}}
                 <div class="w-full bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3 text-center">
                     <p class="text-xs text-primary-500 dark:text-primary-300 mb-0.5">Total Tagihan</p>
@@ -851,8 +832,8 @@
                     </p>
                 </div>
 
-                {{-- Dev Mode: Simulate Payment button (sandbox, non-ewallet) --}}
-                @if(app()->environment('local') && $xenditType !== 'ewallet')
+                {{-- Dev Mode: Simulate Payment button (sandbox) --}}
+                @if(app()->environment('local'))
                 @php
                 $devChannelCode = $this->xenditOrder?->paymentMethod?->xendit_channel_code;
                 $canSimulate = $xenditType !== 'qr_code' || $devChannelCode === 'ID_DANA';

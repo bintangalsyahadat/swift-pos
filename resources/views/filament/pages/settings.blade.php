@@ -350,21 +350,9 @@
                                     </div>
                                 </div>
 
-                                {{-- E-Wallet --}}
-                                <div class="flex gap-2">
-                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">4</span>
-                                    <div>
-                                        <p class="font-semibold text-blue-900 dark:text-blue-200">E-Wallet (OVO, GoPay, ShopeePay, dll.)</p>
-                                        <p class="text-blue-600 dark:text-blue-400 mt-0.5">
-                                            <span class="font-mono bg-blue-100 dark:bg-blue-900/50 px-1 rounded">Settings → Configuration → Webhooks</span>
-                                            → bagian <strong>E-Wallet</strong> → isi <strong>Callback URL</strong>
-                                        </p>
-                                    </div>
-                                </div>
-
                                 {{-- Over The Counter --}}
                                 <div class="flex gap-2">
-                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">5</span>
+                                    <span class="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-bold text-[10px] flex items-center justify-center mt-0.5">4</span>
                                     <div>
                                         <p class="font-semibold text-blue-900 dark:text-blue-200">Over The Counter (Alfamart / Indomaret)</p>
                                         <p class="text-blue-600 dark:text-blue-400 mt-0.5">

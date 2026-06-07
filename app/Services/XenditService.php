@@ -113,7 +113,6 @@ class XenditService
         return match ($pm->xendit_channel_type) {
             'QR_CODE'         => $this->createQRCode($order, $pm),
             'VIRTUAL_ACCOUNT' => $this->createVirtualAccount($order, $pm),
-            'EWALLET'         => $this->createEWallet($order, $pm),
             default           => throw new \RuntimeException(
                 "Channel type [{$pm->xendit_channel_type}] tidak didukung."
             ),
@@ -157,7 +156,9 @@ class XenditService
 
     public function createVirtualAccount(Order $order, PaymentMethod $pm): array
     {
-        $externalId = $order->order_number . '-' . now()->timestamp;
+        // Bersihkan order_number dari karakter non-URL-safe (/ → -) agar aman di URL path simulate
+        $externalId = preg_replace('/[^a-zA-Z0-9_\-]/', '-', $order->order_number)
+            . '-' . now()->timestamp;
 
         $response = $this->http()->post("{$this->baseUrl}/callback_virtual_accounts", [
             'external_id'     => $externalId,
@@ -185,45 +186,6 @@ class XenditService
         ];
     }
 
-    // ── Channel: E-Wallet ─────────────────────────────────────────────────────
-
-    public function createEWallet(Order $order, PaymentMethod $pm): array
-    {
-        $externalId = $order->order_number . '-' . now()->timestamp;
-        $properties = $pm->xendit_channel_properties ?? [];
-
-        $response = $this->http()->post("{$this->baseUrl}/ewallets/charges", [
-            'reference_id'       => $externalId,
-            'currency'           => 'IDR',
-            'amount'             => (int) $order->total_payment,
-            'checkout_method'    => 'ONE_TIME_PAYMENT',
-            'channel_code'       => $pm->xendit_channel_code,
-            'channel_properties' => array_merge([
-                'success_redirect_url' => url('/admin/pos?cashier_id=' . ($order->cashier_id ?? 1)),
-                'failure_redirect_url' => url('/admin/pos?cashier_id=' . ($order->cashier_id ?? 1)),
-            ], $properties),
-        ]);
-
-        if (! $response->successful()) {
-            throw new \RuntimeException('Gagal membuat E-Wallet Xendit: ' . $response->body());
-        }
-
-        $data = $response->json();
-
-        $checkoutUrl = $data['actions']['desktop_web_checkout_url']
-            ?? $data['actions']['mobile_web_checkout_url']
-            ?? $data['checkout_url']
-            ?? null;
-
-        return [
-            'type'         => 'ewallet',
-            'external_id'  => $externalId,
-            'invoice_id'   => $data['id'] ?? null,
-            'checkout_url' => $checkoutUrl,
-            'expires_at'   => $data['charge_expiry_at'] ?? null,
-        ];
-    }
-
     // ── Status check (polling) ────────────────────────────────────────────────
 
     /**
@@ -247,7 +209,6 @@ class XenditService
 
             $response = match ($type) {
                 'VIRTUAL_ACCOUNT' => $this->http()->get("{$this->baseUrl}/callback_virtual_accounts/{$order->xendit_invoice_id}"),
-                'EWALLET'         => $this->http()->get("{$this->baseUrl}/ewallets/charges/{$order->xendit_invoice_id}"),
                 default           => null,
             };
 
@@ -354,7 +315,7 @@ class XenditService
                 ['amount' => $amount]
             ),
             default => throw new \RuntimeException(
-                "Simulate payment tidak didukung untuk channel [{$type}]. Gunakan checkout URL untuk E-Wallet."
+                "Simulate payment tidak didukung untuk channel [{$type}]."
             ),
         };
 

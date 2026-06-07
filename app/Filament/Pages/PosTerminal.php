@@ -68,12 +68,10 @@ class PosTerminal extends Page
     // ─── Xendit payment modal ─────────────────────────────────────────────────
     public bool    $showXenditModal     = false;
     public ?int    $xenditOrderId       = null;
-    public string  $xenditType         = '';   // qr_code | virtual_account | ewallet
+    public string  $xenditType         = '';   // qr_code | virtual_account
     public string  $xenditQrString     = '';
     public string  $xenditVaNumber     = '';
     public string  $xenditVaBank       = '';
-    public string  $xenditCheckoutUrl  = '';
-    public string  $xenditPaymentCode  = '';
     public ?string $xenditExpiresAt    = null;
     public bool    $xenditPaymentFailed = false;
     public string  $xenditFailureNote  = '';
@@ -644,8 +642,6 @@ class PosTerminal extends Page
                 'xendit_qr_string'   => $result['qr_string'] ?? null,
                 'xendit_va_number'   => $result['va_number'] ?? null,
                 'xendit_va_bank'     => $result['va_bank'] ?? null,
-                'xendit_checkout_url' => $result['checkout_url'] ?? null,
-                'xendit_payment_code' => $result['payment_code'] ?? null,
                 'xendit_expires_at'  => isset($result['expires_at'])
                     ? \Carbon\Carbon::parse($result['expires_at'])
                     : null,
@@ -657,8 +653,6 @@ class PosTerminal extends Page
             $this->xenditQrString     = $result['qr_string'] ?? '';
             $this->xenditVaNumber     = $result['va_number'] ?? '';
             $this->xenditVaBank       = $result['va_bank'] ?? '';
-            $this->xenditCheckoutUrl  = $result['checkout_url'] ?? '';
-            $this->xenditPaymentCode  = $result['payment_code'] ?? '';
             $this->xenditExpiresAt    = $result['expires_at'] ?? null;
 
             // Reset state error dari transaksi sebelumnya

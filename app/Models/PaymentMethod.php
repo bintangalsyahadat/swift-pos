@@ -75,7 +75,6 @@ class PaymentMethod extends Model
             'card'            => 'Credit / Debit Card',
             'qr_code'         => 'QR Code',
             'virtual_account' => 'Virtual Account',
-            'ewallet'         => 'E-Wallet',
             default           => ucfirst($this->type),
         };
     }
