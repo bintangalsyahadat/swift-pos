@@ -441,6 +441,13 @@
                         <span class="text-red-500">- {{ $this->currencySymbol }} {{ number_format($this->discountAmount, 0, ',', '.') }}</span>
                     </div>
                     @endif
+                    @if($this->paymentFee > 0)
+                    <div class="flex justify-between text-xs text-gray-500">
+                        @php $selectedPmFee = $this->paymentMethods->firstWhere('id', $paymentMethodId); @endphp
+                        <span>Biaya Layanan{{ $selectedPmFee ? ' ('.$selectedPmFee->name.')' : '' }}</span>
+                        <span class="text-orange-500">+ {{ $this->currencySymbol }} {{ number_format($this->paymentFee, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between text-lg font-extrabold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
                         <span>Total</span>
                         <span class="text-primary-600">{{ $this->currencySymbol }} {{ number_format($this->totalPayment, 0, ',', '.') }}</span>

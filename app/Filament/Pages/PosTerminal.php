@@ -222,13 +222,26 @@ class PosTerminal extends Page
     }
 
     #[Computed]
+    public function paymentFee(): float
+    {
+        $id = $this->paymentMethodId;
+        $pm = $id ? PaymentMethod::find($id) : null;
+        if (! $pm) {
+            return 0;
+        }
+        $total   = collect($this->cart)->sum('subtotal');
+        $discAmt = round($total * ($this->discount / 100), 2);
+        return $pm->calculateFee($total - $discAmt);
+    }
+
+    #[Computed]
     public function totalPayment(): float
     {
         $cart     = $this->cart;
         $discount = $this->discount;
         $total    = collect($cart)->sum('subtotal');
         $discAmt  = round($total * ($discount / 100), 2);
-        return $total - $discAmt;
+        return $total - $discAmt + $this->paymentFee;
     }
 
     #[Computed]
@@ -242,13 +255,9 @@ class PosTerminal extends Page
     #[Computed]
     public function changeAmount(): int
     {
-        $cart       = $this->cart;
-        $discount   = $this->discount;
-        $cashPaid   = $this->cashPaid;
-        $total      = collect($cart)->sum('subtotal');
-        $discAmt    = round($total * ($discount / 100), 2);
-        $totalPay   = (int) ceil($total - $discAmt);
-        $change     = $cashPaid - $totalPay;
+        $cashPaid = $this->cashPaid;
+        $totalPay = (int) ceil($this->totalPayment);
+        $change   = $cashPaid - $totalPay;
         return max(0, $change);
     }
 
@@ -528,9 +537,10 @@ class PosTerminal extends Page
         $isCash         = $this->isCashPayment;
         $cashPaid       = $isCash ? $this->cashPaid : null;
         $changeAmount   = $isCash ? $this->changeAmount : null;
+        $paymentFee     = $this->paymentFee;
         $createdOrderId = null;
 
-        DB::transaction(function () use ($customerId, $cashPaid, $changeAmount, &$createdOrderId) {
+        DB::transaction(function () use ($customerId, $cashPaid, $changeAmount, $paymentFee, &$createdOrderId) {
             $userId = Auth::id();
 
             $order = Order::create([
@@ -541,6 +551,7 @@ class PosTerminal extends Page
                 'total_price'        => $this->totalPrice,
                 'discount'           => $this->discount,
                 'discount_amount'    => $this->discountAmount,
+                'payment_fee'        => $paymentFee,
                 'total_payment'      => $this->totalPayment,
                 'cash_paid'          => $cashPaid,
                 'change_amount'      => $changeAmount,
@@ -609,6 +620,7 @@ class PosTerminal extends Page
                 'total_price'       => $this->totalPrice,
                 'discount'          => $this->discount,
                 'discount_amount'   => $this->discountAmount,
+                'payment_fee'       => $this->paymentFee,
                 'total_payment'     => $this->totalPayment,
                 'payment_method'    => PaymentMethod::find($this->paymentMethodId)?->code ?? 'online',
                 'payment_method_id' => $this->paymentMethodId,
