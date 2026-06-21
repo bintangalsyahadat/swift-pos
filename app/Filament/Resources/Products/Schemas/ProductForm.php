@@ -87,9 +87,6 @@ class ProductForm
                             Toggle::make('is_active')
                                 ->label('Aktif')
                                 ->default(true),
-                            Toggle::make('in_stock')
-                                ->label('Tersedia di Stok')
-                                ->default(false),
                             RichEditor::make('description')
                                 ->label('Deskripsi')
                                 ->default(null)
