@@ -298,6 +298,60 @@
     <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" wire:click.self="closeCustomerModal">
         <div class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]">
 
+            @if($showCustomerCreate)
+            {{-- ═══ Create Customer Form ═══ --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <h2 class="font-bold text-gray-900 dark:text-white text-base">Pelanggan Baru</h2>
+                <button wire:click="cancelCreateCustomer" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 flex-1 overflow-y-auto">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama <span class="text-red-500">*</span></label>
+                    <input type="text" wire:model="newCustomerName"
+                        class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Nama lengkap pelanggan" autofocus />
+                    @error('newCustomerName') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor HP</label>
+                    <input type="text" wire:model="newCustomerPhone"
+                        class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Contoh: 08123456789" />
+                    @error('newCustomerPhone') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" wire:model="newCustomerEmail"
+                        class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Contoh: nama@email.com" />
+                    @error('newCustomerEmail') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat</label>
+                    <textarea wire:model="newCustomerAddress" rows="2"
+                        class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Alamat pelanggan (opsional)"></textarea>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0 space-y-2">
+                <button wire:click="createCustomer"
+                    class="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-primary-600 hover:bg-primary-700 transition">
+                    Simpan Pelanggan
+                </button>
+                <button wire:click="cancelCreateCustomer"
+                    class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    Batal
+                </button>
+            </div>
+
+            @else
+            {{-- ═══ Customer List / Search ═══ --}}
             {{-- Header --}}
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
                 <h2 class="font-bold text-gray-900 dark:text-white text-base">Pilih Pelanggan</h2>
@@ -328,7 +382,6 @@
                 <button wire:click="selectCustomer({{ $customer->id }})"
                     class="w-full flex items-start gap-3 px-5 py-3.5 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-left transition
                         {{ $customerId == $customer->id ? 'bg-primary-50 dark:bg-primary-900/20' : '' }}">
-                    {{-- Avatar initial --}}
                     <div class="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
                         {{ strtoupper(substr($customer->name, 0, 1)) }}
                     </div>
@@ -371,7 +424,7 @@
                     </div>
                 </button>
                 @empty
-                <div class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-600">
+                <div class="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -384,11 +437,19 @@
             </div>
 
             {{-- Footer --}}
-            <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0">
+            <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0 space-y-2">
+                <button wire:click="showCreateCustomerForm"
+                    class="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-primary-600 hover:bg-primary-700 transition flex items-center justify-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Pelanggan Baru
+                </button>
                 <button wire:click="closeCustomerModal" class="w-full py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     Tutup
                 </button>
             </div>
+            @endif
 
         </div>
     </div>

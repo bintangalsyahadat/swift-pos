@@ -819,11 +819,17 @@ Menu **Pelanggan** di sidebar (grup Point of Sale) digunakan untuk mengelola dat
 
 ### 7.2 Menambah Pelanggan
 
+**Melalui panel admin:**
+
 1. Buka menu **Pelanggan** dari sidebar.
 2. Klik **New Customer**.
 3. Isi **Nama** pelanggan (wajib).
 4. (Opsional) Isi **Email**, **Telepon**, dan **Alamat**.
 5. Klik **Create**.
+
+**Langsung dari POS Terminal:**
+
+Pelanggan juga dapat dibuat langsung saat transaksi melalui POS tanpa perlu membuka panel admin. Lihat **Bab 8.3.3 — Memilih Pelanggan**.
 
 ### 7.3 Melihat Detail Pelanggan
 
@@ -972,6 +978,17 @@ Sistem akan selalu memvalidasi stok produk saat menambah jumlah — jika stok ti
 3. Cari pelanggan berdasarkan **Nama**, **Email**, atau **Telepon**.
 4. Klik pelanggan yang dipilih.
 5. Jika tidak memilih pelanggan, sistem akan otomatis menggunakan **Pelanggan Default** dari pengaturan.
+
+**Membuat pelanggan baru langsung dari POS:**
+
+Jika pelanggan belum terdaftar, kasir dapat menambahkan pelanggan baru tanpa meninggalkan antarmuka POS:
+
+1. Buka modal **Pilih Pelanggan**.
+2. Klik tombol **"+ Pelanggan Baru"** di bagian bawah modal.
+3. Isi minimal **Nama** pelanggan (wajib).
+4. (Opsional) Isi **Nomor HP**, **Email**, dan **Alamat**.
+5. Klik **Simpan Pelanggan**.
+6. Pelanggan langsung terpilih dan siap untuk transaksi.
 
 #### 8.3.4 Memberikan Diskon
 

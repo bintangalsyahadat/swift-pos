@@ -80,6 +80,13 @@ class PosTerminal extends Page
     public bool   $showCustomerModal  = false;
     public string $customerSearch     = '';
 
+    // ─── Create customer inside modal ──────────────────────────────────────────
+    public bool    $showCustomerCreate  = false;
+    public string  $newCustomerName     = '';
+    public string  $newCustomerPhone    = '';
+    public string  $newCustomerEmail    = '';
+    public ?string $newCustomerAddress  = null;
+
     // ─────────────────────────────────────────────────────────────────────────
 
     public function mount(): void
@@ -184,6 +191,50 @@ class PosTerminal extends Page
     public function clearCustomer(): void
     {
         $this->customerId = null;
+    }
+
+    public function showCreateCustomerForm(): void
+    {
+        $this->showCustomerCreate = true;
+        $this->newCustomerName    = '';
+        $this->newCustomerPhone   = '';
+        $this->newCustomerEmail   = '';
+        $this->newCustomerAddress = null;
+    }
+
+    public function cancelCreateCustomer(): void
+    {
+        $this->showCustomerCreate = false;
+    }
+
+    public function createCustomer(): void
+    {
+        $this->validate([
+            'newCustomerName'  => 'required|string|min:1|max:255',
+            'newCustomerPhone' => 'nullable|string|max:20|unique:customers,phone',
+            'newCustomerEmail' => 'nullable|email|max:255|unique:customers,email',
+        ], [
+            'newCustomerName.required' => 'Nama pelanggan wajib diisi.',
+            'newCustomerPhone.unique'  => 'Nomor HP sudah terdaftar.',
+            'newCustomerEmail.unique'  => 'Email sudah terdaftar.',
+        ]);
+
+        $customer = Customer::create([
+            'name'    => $this->newCustomerName,
+            'phone'   => $this->newCustomerPhone ?: null,
+            'email'   => $this->newCustomerEmail ?: null,
+            'address' => $this->newCustomerAddress ?: null,
+        ]);
+
+        $this->customerId        = $customer->id;
+        $this->showCustomerCreate = false;
+        $this->showCustomerModal  = false;
+
+        Notification::make()
+            ->title('Pelanggan berhasil dibuat')
+            ->body($customer->name)
+            ->success()
+            ->send();
     }
 
     #[Computed]
