@@ -18,10 +18,27 @@ class Product extends Model
         'category_id',
         'sub_category_id',
         'is_active',
+        'type',
         'sku',
         'barcode',
         'base_price',
     ];
+
+    /**
+     * Apakah produk bertipe storable (berbasis stok).
+     */
+    public function isStorable(): bool
+    {
+        return $this->type === 'storable';
+    }
+
+    /**
+     * Apakah produk bertipe service (jasa, tidak berbasis stok).
+     */
+    public function isService(): bool
+    {
+        return $this->type === 'service';
+    }
 
     public function orderDetails()
     {
@@ -37,8 +54,15 @@ class Product extends Model
      * Hitung stok aktual dari akumulasi stock move yang sudah done.
      * Tidak bergantung pada kolom stock — murni dari stock move.
      */
-    public function currentStock(): int
+    /**
+     * Stok hanya relevan untuk produk storable. Service product selalu null.
+     */
+    public function currentStock(): ?int
     {
+        if ($this->isService()) {
+            return null;
+        }
+
         $in  = $this->stockMoves()->where('state', 'done')->where('type', 'in')->sum('quantity');
         $out = $this->stockMoves()->where('state', 'done')->where('type', 'out')->sum('quantity');
 

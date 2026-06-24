@@ -39,8 +39,9 @@ class InventoryAdjustmentForm
                     ->schema([
                         Select::make('product_id')
                             ->label('Produk')
-                            ->options(Product::where('is_active', true)->pluck('name', 'id'))
+                            ->options(Product::where('is_active', true)->where('type', 'storable')->pluck('name', 'id'))
                             ->getSearchResultsUsing(fn(string $search) => Product::where('is_active', true)
+                                ->where('type', 'storable')
                                 ->where(
                                     fn($q) => $q
                                         ->where('name', 'like', "%{$search}%")
@@ -52,7 +53,7 @@ class InventoryAdjustmentForm
                             ->required()
                             ->live()
                             ->helperText(fn(Get $get) => ($p = Product::find($get('product_id')))
-                                ? 'Stok saat ini: ' . $p->currentStock()
+                                ? 'Stok saat ini: ' . ($p->currentStock() !== null ? $p->currentStock() : '—')
                                 : null)
                             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->columnSpan(2),

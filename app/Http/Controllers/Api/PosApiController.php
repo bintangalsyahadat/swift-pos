@@ -77,6 +77,7 @@ class PosApiController extends Controller
                 'price'           => (float) $p->price,
                 'base_price'      => (float) $p->base_price,
                 'image'           => $p->image,
+                'type'            => $p->type,
                 'current_stock'   => $p->currentStock(),
                 'category_id'     => optional($p->category)->api_id,
                 'sub_category_id' => optional($p->subCategory)->api_id,
@@ -357,6 +358,8 @@ class PosApiController extends Controller
                             );
                         }
 
+                        $product = Product::find($productId);
+
                         $detail = OrderDetail::create([
                             'order_id'   => $order->id,
                             'product_id' => $productId,
@@ -364,16 +367,18 @@ class PosApiController extends Controller
                             'subtotal'   => $item['subtotal'],
                         ]);
 
-                        StockMove::create([
-                            'product_id'      => $productId,
-                            'user_id'         => $user->id,
-                            'order_detail_id' => $detail->id,
-                            'quantity'        => $item['quantity'],
-                            'type'            => 'out',
-                            'reference'       => $order->order_number ?? $posReference,
-                            'state'           => 'done',
-                            'notes'           => 'Penjualan POS (sync offline)',
-                        ]);
+                        if ($product && $product->isStorable()) {
+                            StockMove::create([
+                                'product_id'      => $productId,
+                                'user_id'         => $user->id,
+                                'order_detail_id' => $detail->id,
+                                'quantity'        => $item['quantity'],
+                                'type'            => 'out',
+                                'reference'       => $order->order_number ?? $posReference,
+                                'state'           => 'done',
+                                'notes'           => 'Penjualan POS (sync offline)',
+                            ]);
+                        }
                     }
 
                     $synced[] = $posReference;

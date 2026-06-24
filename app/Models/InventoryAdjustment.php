@@ -26,6 +26,10 @@ class InventoryAdjustment extends Model
 
             if ($adjustment->status === 'done') {
                 $adjustment->details()->with('product')->get()->each(function ($detail) use ($adjustment) {
+                    if ($detail->product && $detail->product->isService()) {
+                        return;
+                    }
+
                     StockMove::create([
                         'product_id' => $detail->product_id,
                         'user_id'    => $adjustment->user_id,

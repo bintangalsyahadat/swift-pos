@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\SubCategory;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -64,12 +65,25 @@ class ProductForm
                             TextInput::make('name')
                                 ->label('Nama')
                                 ->required(),
+                            Radio::make('type')
+                                ->label('Tipe Produk')
+                                ->options([
+                                    'storable' => 'Produk Stok (Barang Fisik)',
+                                    'service'  => 'Produk Jasa (Non-Stok)',
+                                ])
+                                ->default('storable')
+                                ->required()
+                                ->live()
+                                ->inline()
+                                ->inlineLabel(false)
+                                ->columnSpanFull(),
                             TextInput::make('base_price')
                                 ->label('Harga Modal')
-                                ->required()
                                 ->numeric()
                                 ->prefix(\App\Models\Setting::currencySymbol())
-                                ->default(0),
+                                ->default(0)
+                                ->hidden(fn(Get $get) => $get('type') === 'service')
+                                ->dehydrated(fn(Get $get) => $get('type') === 'storable'),
 
                             TextInput::make('price')
                                 ->label('Harga Jual')

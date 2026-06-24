@@ -76,6 +76,10 @@ class Order extends Model
 
             if ($newStatus === 'processing') {
                 $order->orderDetails()->with('product')->get()->each(function ($detail) use ($order, $userId) {
+                    if ($detail->product && $detail->product->isService()) {
+                        return;
+                    }
+
                     StockMove::create([
                         'product_id'      => $detail->product_id,
                         'user_id'         => $userId,
@@ -100,6 +104,10 @@ class Order extends Model
                     // Alur Xendit: langsung new → completed (lewati processing)
                     // user_id nullable — webhook tidak punya Auth::id()
                     $order->orderDetails()->with('product')->get()->each(function ($detail) use ($order, $userId) {
+                        if ($detail->product && $detail->product->isService()) {
+                            return;
+                        }
+
                         StockMove::create([
                             'product_id'      => $detail->product_id,
                             'user_id'         => $userId ?: null,

@@ -22,6 +22,12 @@ class ProductsTable
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
+                TextColumn::make('type')
+                    ->label('Tipe')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state === 'storable' ? 'Produk Stok' : 'Jasa')
+                    ->color(fn ($state) => $state === 'storable' ? 'primary' : 'gray')
+                    ->sortable(),
                 TextColumn::make('price')
                     ->label('Harga')
                     ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format($state, 0, ',', '.') : '—')
@@ -29,9 +35,10 @@ class ProductsTable
                 TextColumn::make('current_stock')
                     ->label('Stok')
                     ->getStateUsing(fn($record) => $record->currentStock())
+                    ->formatStateUsing(fn ($state) => $state !== null ? strval($state) : '—')
                     ->numeric()
                     ->badge()
-                    ->color(fn($state) => $state > 0 ? 'success' : 'danger'),
+                    ->color(fn ($state) => match(true) { $state === null => 'gray', $state > 0 => 'success', default => 'danger' }),
                 TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->locale('id')->translatedFormat('d F Y, H:i') : '—')
